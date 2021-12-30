@@ -73,11 +73,13 @@ kMeansAux xs m
         where xms = asocXM xs m
 
 getNewM xms [] = []
-getNewM xms (m:ms) = [calculaMediaM xms m 0 (replicate (fromIntegral(length m)) 0)] ++ (getNewM xms ms)
+getNewM xms (m:ms) = [calculaMediaM xms m] ++ (getNewM xms ms) --Quizas hacer una auxiliar mas para no tener que pasar el replicate como argumento
 
-calculaMediaM [] m 0 _ = m
-calculaMediaM [] m cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length m)]]
-calculaMediaM (xm:xms) m cont acc = if (snd xm) == m then calculaMediaM xms m (cont+1) [i + j  | (i,j) <- zip (elems (fst xm)) (acc)] else calculaMediaM xms m cont acc
+calculaMediaM xms m = calculaMediaMAux xms m 0 (replicate (fromIntegral(length m)) 0)
+
+calculaMediaMAux [] m 0 _ = m
+calculaMediaMAux [] m cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length m)]]
+calculaMediaMAux (xm:xms) m cont acc = if (snd xm) == m then calculaMediaMAux xms m (cont+1) [i + j  | (i,j) <- zip (elems (fst xm)) (acc)] else calculaMediaMAux xms m cont acc
 
 asocXM xs ms 
     | null xs || null ms = error "Lista de vectores o centros vacia"
