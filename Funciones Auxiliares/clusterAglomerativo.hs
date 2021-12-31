@@ -29,15 +29,20 @@ listaVector :: Num a => [a] -> Vector a
 listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 
-clusterAglomerativoAux vss 
-    | length vss /= 1 =  xy:(eliminaElem y (eliminaElem x vss))
-    | otherwise = []
+-- clusterAglomerativoAux vss 
+--     | length vss /= 1 = clusterAglomerativoAux (xy:(eliminaElem y (eliminaElem x vss)))
+--     | otherwise = vss
+--         where (x,y) = fst (distanciaMinima vss)
+--               xy = x ++ y
+
+--                                Elemento que es lista de listas   Elemento que solo es lista
+-- Da error porque no podemos hacer [ [[Vector, Vector],[Vector]] , [Vector] ]
+-- Probar con estructura de arbol
+clusterAglomerativoAux vss = (xy:(eliminaElem y (eliminaElem x vss)))
         where (x,y) = fst (distanciaMinima vss)
               xy = x ++ y
 
-
-
-distanciaMinima vss = head(sortBy sndTuple (calculaMatrixProximidad vs'))
+distanciaMinima vss = head(sortBy sndTuple (calculaMatrixProximidad vss))
 
 calculaMatrixProximidad :: (Floating a, Ord a) => [[Vector a]] -> [(([Vector a], [Vector a]), a)]
 calculaMatrixProximidad [] = []
@@ -67,3 +72,6 @@ eliminaElem _ [] = []
 eliminaElem x (y:ys) 
     | x == y    = ys
     | otherwise = y : eliminaElem x ys
+
+
+[[array (1,2) [(1,0.0),(2,2.0)],array (1,2) [(1,2.0),(2,2.0)],array (1,2) [(1,2.0),(2,0.0)]],[array (1,2) [(1,6.0),(2,5.0)]],[array (1,2) [(1,7.0),(2,2.0)]]]
