@@ -2,6 +2,10 @@ import Data.Array
 import Data.List
 import System.Random
 
+-- Codigo para probarlo
+-- > d = inicializaClusteringAglomerativo lv
+-- > clusteringAglomerativo d
+
 
 type Vector = Array Int Double
 
@@ -10,20 +14,22 @@ type Nivel = (Int, [Cluster], Int) -- (Numero de nivel, lista de clusters de ese
 type EvolucionClusters = [Nivel]
 
 
-v1 = listaVector [0.0,2.0]
-v2 = listaVector [2.0,2.0]
-v3 = listaVector [2.0,0.0]
-v4 = listaVector [6.0,5.0]
-v5 = listaVector [7.0,2.0]
+v1 = listaVector [2.0,0.0]
+v2 = listaVector [10.0,20.0]
+v3 = listaVector [2.0,1.0]
+v4 = listaVector [15.0,7.0]
+--v5 = listaVector [7.0,2.0]
 
-m1 = listaVector [0.0,0.0]
-m2 = listaVector [3.0,3.0]
+-- m1 = listaVector [0.0,0.0]
+-- m2 = listaVector [3.0,3.0]
 
-ms = [m1, m2]
-vs = [v1, v2, v3, v4, v5]
+-- ms = [m1, m2]
+-- vs = [v1, v2, v3, v4, v5]
 
-ms' = [[m1], [m2]]
-vs' = [[v1], [v2], [v3], [v4], [v5]]
+-- ms' = [[m1], [m2]]
+-- vs' = [[v1], [v2], [v3], [v4], [v5]]
+
+lv = [v1, v2, v3, v4]
 
 -- Funcion auxiliar temportal para trabajar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
 listaVector :: [Double] -> Vector
