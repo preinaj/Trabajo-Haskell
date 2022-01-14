@@ -1,8 +1,15 @@
+module ClusterAglomerativoArbol 
+    (inicializaClusteringAglomerativo,
+    clusteringAglomerativo,
+    clusteringAglomerativoN
+    ) where 
+
+
 import Data.Array
 import Data.List
 import System.Random
 import Data.Maybe
-
+import Data.Tree
 ---------------------------------
 
 -- Codigo para probarlo
@@ -82,11 +89,20 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 inicializaClusteringAglomerativo :: [Vector] -> Dendogram
 inicializaClusteringAglomerativo puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
 
+-- Funcion previa al algoritmo de clustering, elige la forma de representacion de los cluster en la consola
+--clusteringAglomerativo :: Dendogram -> String -> Nodo
+clusteringAglomerativo dendogram modo
+    | modo == "AI" = toDataTreeId (clusteringAglomerativoAux dendogram)
+    | modo == "AC" = toDataTreeCl (clusteringAglomerativoAux dendogram)
+    | otherwise = error "Modo no valido"
+
+clusteringAglomerativoN dendogram = clusteringAglomerativoAux dendogram
+
 -- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
-clusteringAglomerativo :: Dendogram -> Nodo
-clusteringAglomerativo dendogram 
+clusteringAglomerativoAux :: Dendogram -> Nodo
+clusteringAglomerativoAux dendogram 
     | condParada        = head $ dendogram
-    | otherwise         = clusteringAglomerativo (calculaSiguienteNivel dendogram)
+    | otherwise         = clusteringAglomerativoAux (calculaSiguienteNivel dendogram)
     where   condParada = length dendogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
 
 -- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
@@ -149,4 +165,15 @@ calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
+-- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeId (H id cl) = Node (show (id)) []
+toDataTreeId (N id cl n1 n2 ) = Node (show (id)) [toDataTreeId n1, toDataTreeId n2]
 
+-- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeCl (H id cl) = Node (show (cl)) []
+toDataTreeCl (N id cl n1 n2 ) = Node (show (cl)) [toDataTreeCl n1, toDataTreeCl n2]
+
+-- a = inicializaClusteringAglomerativo lv
+-- d = clusteringAglomerativo a
+-- e = toDataTree d
+-- f = putStrLn $ drawTree e

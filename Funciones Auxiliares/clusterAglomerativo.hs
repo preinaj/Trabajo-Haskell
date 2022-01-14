@@ -74,4 +74,3 @@ eliminaElem x (y:ys)
     | otherwise = y : eliminaElem x ys
 
 
-[[array (1,2) [(1,0.0),(2,2.0)],array (1,2) [(1,2.0),(2,2.0)],array (1,2) [(1,2.0),(2,0.0)]],[array (1,2) [(1,6.0),(2,5.0)]],[array (1,2) [(1,7.0),(2,2.0)]]]
