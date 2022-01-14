@@ -2,6 +2,14 @@ import Text.CSV
 import System.Directory (doesFileExist)
 import Data.Array
 
+import ClusterAglomerativoArbol
+import KMeans
+import Data.Array
+import Data.Tree
+import Data.IORef
+import System.IO.Unsafe
+import Debug.Trace
+
 type Vector = Array Int Double
 data Dataset4Clustering  = Dataset4Clustering {
     nombre :: String, 
@@ -39,7 +47,9 @@ parseadorCSV nombreFich = do
     let filas = case csv of
             (Right lineas) -> lineas
             _ -> []
-    let filasValidas = filter (\x -> length x == 2) filas
+    -- putStrLn (show filas)
+    let filasValidas = filter (\x -> length x > 1) filas
+    -- putStrLn (show filasValidas)
     if (length filasValidas < 2) then
         putStrLn "\n Formato de fichero incorrecto"
     else do 
@@ -54,9 +64,13 @@ parseadorCSV nombreFich = do
             cabecera = cabecera,
             datos = [ fila2Array fila | fila <- contenido ]
         }
+        -- putStrLn (show [fila2Array fila | fila <- contenido] )
         -- aqui habria que llamar al main o a lo que use los datos para empezar el algoritmo
+        putStrLn (show dataset)
         putStrLn "--------------------------------------"
+
 
 fila2Array fila = array (1,l) filaDouble
     where   filaDouble = [ (ind, ((read dato) :: Double)) | (ind,dato) <- zip [1..] fila]
-            l = length (head fila)
+            l = length fila
+            -- filaPrueba = trace ("DEGUB: "++ show filaDouble ) (head filaDouble)
