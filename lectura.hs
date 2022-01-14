@@ -74,3 +74,5 @@ fila2Array fila = array (1,l) filaDouble
     where   filaDouble = [ (ind, ((read dato) :: Double)) | (ind,dato) <- zip [1..] fila]
             l = length fila
             -- filaPrueba = trace ("DEGUB: "++ show filaDouble ) (head filaDouble)
+
+-- aqui iria el main.hs

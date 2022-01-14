@@ -20,15 +20,20 @@ v4 = listaVector [15.0,7.0]
 lv = [v1, v2, v3, v4] -- Datos de prueba, borrar cuando podamos leer datos
 
 
-main = do 
-    putStr "Indique la carpeta con los datos: "
-    datos <- getLine
-    -- Procesamiento de los datos
-    -- Comprobar archivo valido
-    seleccionAlgoritmo datos
+-- main = do 
+--     putStr "Indique la carpeta con los datos: "
+--     datos <- getLine
+--     -- Procesamiento de los datos
+--     -- Comprobar archivo valido
+--     seleccionAlgoritmo datos
     
-seleccionAlgoritmo datos = do    
-    putStr "Seleccion el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): "
+seleccionAlgoritmo datos = do  
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "       ELECCION DE ALGORITMO"
+    putStrLn "--------------------------------------"
+    putChar '\n'  
+    putStr "Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): "
     xs <- getLine
     if xs == "KM"
         then
@@ -42,9 +47,15 @@ seleccionAlgoritmo datos = do
                     seleccionAlgoritmo datos
 
 algKMeans datos = do
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "       ALGORITMO DE K-MEDIAS"
+    putStrLn "--------------------------------------"
+    putChar '\n'
     putStr "Indique el numero de centros para el algoritmo: "
     x <- getLine -- Añadir comprobacion numero valido
     let m = read x :: Int
+    putChar '\n'
     putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM)"
     modo <- getLine
     if modo == "M"
@@ -57,10 +68,16 @@ algKMeans datos = do
                     res <- (kMeansCompleto m lv)
                     putStrLn (show res)
                 else do
+                    putChar '\n'
                     putStrLn "Introduzca un modo valido"
                     algKMeans datos
 
 clustAglomerativo datos = do
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "ALGORITMO DE CLUSTERING AGLOMERATIVO"
+    putStrLn "--------------------------------------"
+    putChar '\n'
     putStr "Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): "
     xs <- getLine
     if xs == "LE"
@@ -71,10 +88,12 @@ clustAglomerativo datos = do
                 then 
                     clustAglomerativoArbol datos
                 else do
+                    putChar '\n'
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativo datos
 
 clustAglomerativoArbol datos = do
+    putChar '\n'
     putStr "Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N)"
     modo <- getLine
     let d = inicializaClusteringAglomerativo lv --Aqui tendrían que venir los datos de verdad
@@ -86,5 +105,6 @@ clustAglomerativoArbol datos = do
                 then
                     putStrLn ( show (clusteringAglomerativoN d))
                 else do
+                    putChar '\n'
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativoArbol datos
