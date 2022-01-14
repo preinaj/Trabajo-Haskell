@@ -50,8 +50,9 @@ parseadorCSV nombreFich = do
     -- putStrLn (show filas)
     let filasValidas = filter (\x -> length x > 1) filas
     -- putStrLn (show filasValidas)
-    if (length filasValidas < 2) then
+    if (length filasValidas < 2) then do
         putStrLn "\n Formato de fichero incorrecto"
+        leeDataset
     else do 
         -- putStrLn $ printCSV filasValidas
         let cabecera = head filasValidas
@@ -66,8 +67,9 @@ parseadorCSV nombreFich = do
         }
         -- putStrLn (show [fila2Array fila | fila <- contenido] )
         -- aqui habria que llamar al main o a lo que use los datos para empezar el algoritmo
-        putStrLn (show dataset)
-        putStrLn "--------------------------------------"
+        -- putStrLn (show dataset)
+        putStrLn (show (datos dataset))
+        seleccionAlgoritmo (datos dataset)
 
 
 fila2Array fila = array (1,l) filaDouble
@@ -75,4 +77,85 @@ fila2Array fila = array (1,l) filaDouble
             l = length fila
             -- filaPrueba = trace ("DEGUB: "++ show filaDouble ) (head filaDouble)
 
--- aqui iria el main.hs
+
+seleccionAlgoritmo datos = do  
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "       ELECCION DE ALGORITMO"
+    putStrLn "--------------------------------------"
+    putChar '\n'  
+    putStr "Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): "
+    xs <- getLine
+    if xs == "KM"
+        then
+            algKMeans datos
+        else do
+            if xs == "CA"
+                then
+                    clustAglomerativo datos
+                else do
+                    putStrLn "Introduzca una opción válida"
+                    seleccionAlgoritmo datos
+
+algKMeans datos = do
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "       ALGORITMO DE K-MEDIAS"
+    putStrLn "--------------------------------------"
+    putChar '\n'
+    putStr "Indique el numero de centros para el algoritmo: "
+    x <- getLine -- Añadir comprobacion numero valido
+    let m = read x :: Int
+    putChar '\n'
+    putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM): "
+    modo <- getLine
+    if modo == "M"
+        then do
+            res <- (kMeans m datos)
+            putStrLn (show res)
+        else 
+            if modo == "CM"
+                then do
+                    res <- (kMeansCompleto m datos)
+                    putStrLn (show res)
+                else do
+                    putChar '\n'
+                    putStrLn "Introduzca un modo valido"
+                    algKMeans datos
+
+clustAglomerativo datos = do
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "ALGORITMO DE CLUSTERING AGLOMERATIVO"
+    putStrLn "--------------------------------------"
+    putChar '\n'
+    putStr "Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): "
+    xs <- getLine
+    if xs == "LE"
+        then
+            clustAglomerativo datos -- ESTO AQUI ENTRA EN BUCLE INFINITO !!!!!!!!!!!!
+        else do
+            if xs == "A"
+                then 
+                    clustAglomerativoArbol datos
+                else do
+                    putChar '\n'
+                    putStrLn "Introduzca una opción válida"
+                    clustAglomerativo datos
+
+clustAglomerativoArbol datos = do
+    putChar '\n'
+    putStr "Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): "
+    modo <- getLine
+    let d = inicializaClusteringAglomerativo datos --Aqui tendrían que venir los datos de verdad
+    if modo == "AC" || modo == "AI"
+        then
+            putStrLn $ drawTree (clusteringAglomerativo d modo)
+        else
+            if modo == "N"
+                then
+                    putStrLn ( show (clusteringAglomerativoN d))
+                else do
+                    putChar '\n'
+                    putStrLn "Introduzca una opción válida"
+                    clustAglomerativoArbol datos
