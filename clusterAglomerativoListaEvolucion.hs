@@ -1,3 +1,9 @@
+module ClusterAglomerativoListaEvolucion(
+    inicializaClusteringAglomerativoLE,
+    clusteringAglomerativoLE
+) where
+
+
 import Data.Array
 import Data.List
 import System.Random
@@ -39,14 +45,14 @@ listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 -- Obtiene el primer nivel a partir de los datos:
 -- todos los elementos forman un cluster por si mismos
-inicializaClusteringAglomerativo :: [Vector] -> EvolucionClusters
-inicializaClusteringAglomerativo puntosIniciales = [ ( 0, [ [punto] | punto <- puntosIniciales], length puntosIniciales ) ]
+inicializaClusteringAglomerativoLE :: [Vector] -> EvolucionClusters
+inicializaClusteringAglomerativoLE puntosIniciales = [ ( 0, [ [punto] | punto <- puntosIniciales], length puntosIniciales ) ]
 
 -- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
-clusteringAglomerativo :: EvolucionClusters -> EvolucionClusters
-clusteringAglomerativo listaEvolucion 
+clusteringAglomerativoLE :: EvolucionClusters -> EvolucionClusters
+clusteringAglomerativoLE listaEvolucion 
     | condParada        = listaEvolucion
-    | otherwise         = clusteringAglomerativo (listaEvolucion ++ [ calculaSiguienteNivel nivelActual ] )
+    | otherwise         = clusteringAglomerativoLE (listaEvolucion ++ [ calculaSiguienteNivel nivelActual ] )
     where   nivelActual@(numNivel, listclusters, numClusters) = last listaEvolucion
             condParada = length listclusters == 1
 

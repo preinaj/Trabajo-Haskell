@@ -1,6 +1,6 @@
 module ClusterAglomerativoArbol 
-    (inicializaClusteringAglomerativo,
-    clusteringAglomerativo,
+    (inicializaClusteringAglomerativoA,
+    clusteringAglomerativoA,
     clusteringAglomerativoN
     ) where 
 
@@ -86,12 +86,12 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 
 -- Obtiene el primer nivel a partir de los datos:
 -- todos los elementos forman un cluster por si mismos
-inicializaClusteringAglomerativo :: [Vector] -> Dendogram
-inicializaClusteringAglomerativo puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
+inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
+inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
 
 -- Funcion previa al algoritmo de clustering, elige la forma de representacion de los cluster en la consola
 --clusteringAglomerativo :: Dendogram -> String -> Nodo
-clusteringAglomerativo dendogram modo
+clusteringAglomerativoA dendogram modo
     | modo == "AI" = toDataTreeId (clusteringAglomerativoAux dendogram)
     | modo == "AC" = toDataTreeCl (clusteringAglomerativoAux dendogram)
     | otherwise = error "Modo no valido"

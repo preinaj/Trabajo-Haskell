@@ -2,6 +2,7 @@ import Text.CSV
 import System.Directory (doesFileExist)
 import Data.Array
 
+import ClusterAglomerativoListaEvolucion
 import Representacion2D
 import Distancias
 import ClusterAglomerativoArbol
@@ -156,8 +157,9 @@ clustAglomerativo datos = do
     putStr "Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): "
     xs <- getLine
     if xs == "LE"
-        then
-            clustAglomerativo datos -- ESTO AQUI ENTRA EN BUCLE INFINITO !!!!!!!!!!!!
+        then do
+            let d = inicializaClusteringAglomerativoLE datos
+            representaClusterAglomerativoLE (clusteringAglomerativoLE d)
         else do
             if xs == "A"
                 then 
@@ -167,14 +169,35 @@ clustAglomerativo datos = do
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativo datos
 
+
+representaClusterAglomerativoLE [] = return ()
+representaClusterAglomerativoLE (x:xs) = do
+    let nivel = fst' x
+    let ls = snd' x
+    putChar '\n'
+    putChar '\n'
+    putStrLn ("Nivel " ++ show nivel ++ " de la lista de evolucion: ")
+    putStrLn "--------------------------------------" 
+    representaUncluster ls 1
+    representaClusterAglomerativoLE xs
+
+representaUncluster [] _ = return ()
+representaUncluster (x:xs) i = do
+    putStrLn ("Cluster numero " ++ show i ++ ": " ++ show x)
+    representaUncluster xs (i+1)
+
+fst' (a,_,_) = a 
+snd' (_,a,_) = a
+thr' (_,_,a) = a
+
 clustAglomerativoArbol datos = do
     putChar '\n'
     putStr "Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): "
     modo <- getLine
-    let d = inicializaClusteringAglomerativo datos --Aqui tendrían que venir los datos de verdad
+    let d = inicializaClusteringAglomerativoA datos --Aqui tendrían que venir los datos de verdad
     if modo == "AC" || modo == "AI"
         then
-            putStrLn $ drawTree (clusteringAglomerativo d modo)
+            putStrLn $ drawTree (clusteringAglomerativoA d modo)
         else
             if modo == "N"
                 then

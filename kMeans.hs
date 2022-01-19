@@ -4,55 +4,38 @@ module KMeans
       asocXM
     ) where 
 
+import Distancias
 import Data.Array
 import Data.List
 import System.Random
 import CentrosAleatorios
 
-type Vector = Array Int Double
+--type Vector = Array Int Double
 
 
 -- Funcion auxiliar temportal para trabjar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
-listaVector :: [Double] -> Vector 
-listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
+--listaVector :: [Double] -> Vector 
+--listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 -- Vectores de prueba (borrar cuando vayamos a entregar)
 
-v1 = listaVector [0.0,2.0]
-v2 = listaVector [2.0,2.0]
-v3 = listaVector [2.0,0.0]
-v4 = listaVector [-1.0,2.0]
-v5 = listaVector [3.0,-1.0]
-v6 = listaVector [0.0,1.0]
-v7 = listaVector [1.0,-2.0]
-v8 = listaVector [-1.0,-2.0]
+-- v1 = listaVector [0.0,2.0]
+-- v2 = listaVector [2.0,2.0]
+-- v3 = listaVector [2.0,0.0]
+-- v4 = listaVector [-1.0,2.0]
+-- v5 = listaVector [3.0,-1.0]
+-- v6 = listaVector [0.0,1.0]
+-- v7 = listaVector [1.0,-2.0]
+-- v8 = listaVector [-1.0,-2.0]
 
-m1 = listaVector [0.0,0.0]
-m2 = listaVector [3.0,3.0]
-m3 = listaVector [-1.0,3-1.0]
+-- m1 = listaVector [0.0,0.0]
+-- m2 = listaVector [3.0,3.0]
+-- m3 = listaVector [-1.0,3-1.0]
 
-ms = [m1, m2, m3]
-vs = [v1, v2, v3, v4, v5, v6, v7, v8]
+-- ms = [m1, m2, m3]
+-- vs = [v1, v2, v3, v4, v5, v6, v7, v8]
 
-vms = asocXM vs ms
-
--- Distancia Euclidea 
-distEuclid :: Vector  -> Vector  -> Double
-distEuclid v1 v2 
-    | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
-    | otherwise = error "Vectores incompatibles"
-
--- Distancia Manhattan
-distManh :: Vector  -> Vector  -> Double
-distManh v1 v2 
-    | indices v1 == indices v2 = sum[abs (x - y) | (x,y) <- zip (elems v1) (elems v2)]
-    | otherwise = error "Vectores incompatibles"
-
--- Distancia Hamming
-distHamming :: Vector  -> Vector  -> Double
-distHamming v1 v2 
-    | indices v1 == indices v2 = sum[if x == y then 0 else 1 | (x,y) <- zip (elems v1) (elems v2)]
-    | otherwise = error "Vectores incompatibles"
+-- vms = asocXM vs ms
 
 
 --kMeans :: (Floating a ,Ord a) => Integer -> [Vector a] -> [Vector a]
