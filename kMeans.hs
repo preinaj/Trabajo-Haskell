@@ -1,6 +1,7 @@
 module KMeans 
     ( kMeans,
-      kMeansCompleto
+      kMeansCompleto,
+      asocXM
     ) where 
 
 import Data.Array
@@ -8,11 +9,11 @@ import Data.List
 import System.Random
 import CentrosAleatorios
 
-type Vector a = Array Int a
+type Vector = Array Int Double
 
 
 -- Funcion auxiliar temportal para trabjar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
-listaVector :: Num a => [a] -> Vector a
+listaVector :: [Double] -> Vector 
 listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 -- Vectores de prueba (borrar cuando vayamos a entregar)
@@ -36,19 +37,19 @@ vs = [v1, v2, v3, v4, v5, v6, v7, v8]
 vms = asocXM vs ms
 
 -- Distancia Euclidea 
-distEuclid :: Floating a => Vector a -> Vector a -> a
+distEuclid :: Vector  -> Vector  -> Double
 distEuclid v1 v2 
     | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
     | otherwise = error "Vectores incompatibles"
 
 -- Distancia Manhattan
-distManh :: Floating a => Vector a -> Vector a -> a
+distManh :: Vector  -> Vector  -> Double
 distManh v1 v2 
     | indices v1 == indices v2 = sum[abs (x - y) | (x,y) <- zip (elems v1) (elems v2)]
     | otherwise = error "Vectores incompatibles"
 
 -- Distancia Hamming
-distHamming :: (Floating a,Eq a) => Vector a -> Vector a -> a
+distHamming :: Vector  -> Vector  -> Double
 distHamming v1 v2 
     | indices v1 == indices v2 = sum[if x == y then 0 else 1 | (x,y) <- zip (elems v1) (elems v2)]
     | otherwise = error "Vectores incompatibles"
@@ -83,7 +84,7 @@ asocXM xs ms
     | null xs || null ms = error "Lista de vectores o centros vacia"
     | otherwise = asocXMAux xs ms []
 
-asocXMAux :: (Floating a,Ord a) => [Vector a] -> [Vector a] -> [(Vector a,Vector a)] -> [(Vector a,Vector a)]
+asocXMAux :: [Vector ] -> [Vector ] -> [(Vector ,Vector )] -> [(Vector ,Vector )]
 asocXMAux [] _ acc = acc
 asocXMAux (x:xs) ms acc = asocXMAux xs ms ([(x,(getMinDist x ms))] ++ acc)
 
@@ -93,5 +94,3 @@ getMinDist x ms = snd (head (sortBy fstTuple [((distEuclid x m), m) | m <- ms]))
 fstTuple (x1,y1) (x2,y2)
     | x1 > x2 = GT 
     | otherwise = LT
-
-    

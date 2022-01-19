@@ -1,3 +1,8 @@
+module Representacion2D(
+  main
+) where
+
+
 import CodeWorld
 import Data.Array
 
@@ -8,9 +13,9 @@ listaColores = [black, red, green, blue, pink, purple, yellow, orange, brown, gr
 
 -- Recibe una lista de clusters, lista de puntos asociadas a clusters y lista de colores. Pinta cada punto de un color asociado al cluster.
 -- De maximo tantos clusters como la longitud de la lista de colores
-main :: IO ()
-main = drawingOf (representasClusers [(array (1,2) [(1,-1.0),(2,-2.0)],array (1,2) [(1,1.25),(2,-1.25)]),(array (1,2) [(1,1.0),(2,-2.0)],array (1,2) [(1,1.25),(2,-1.25)]),(array (1,2) [(1,0.0),(2,1.0)],array (1,2) [(1,-0.3333333333333333),(2,1.6666666666666667)]),(array (1,2) [(1,3.0),(2,-1.0)],array (1,2) [(1,1.25),(2,-1.25)]),(array (1,2) [(1,-1.0),(2,2.0)],array (1,2) [(1,-0.3333333333333333),(2,1.6666666666666667)]),(array (1,2) [(1,2.0),(2,0.0)],array (1,2) [(1,1.25),(2,-1.25)]),(array (1,2) [(1,2.0),(2,2.0)],array (1,2) [(1,2.0),(2,2.0)]),(array (1,2) [(1,0.0),(2,2.0)],array (1,2) [(1,-0.3333333333333333),(2,1.6666666666666667)])] asociados) 
-  where asociados = asociaColorACluster [array (1,2) [(1,1.25),(2,-1.25)],array (1,2) [(1,2.0),(2,2.0)],array (1,2) [(1,-0.3333333333333333),(2,1.6666666666666667)]] listaColores
+--main :: IO ()
+main m xm = drawingOf (representasClusers xm asociados) 
+  where asociados = asociaColorACluster m listaColores
 
 representasClusers :: [(Main.Vector,Main.Vector)] -> [([Double], Color)] -> Picture
 representasClusers [] _ = blank

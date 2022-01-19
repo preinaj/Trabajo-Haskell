@@ -13,7 +13,7 @@ listaVector xs = do
     xs' <- xs
     return  (array (1,length xs') [(y,x) | (x,y) <- (zip xs' [1..length xs'])])
 
-listaMinMax = [(-1,1),(0,3)]   --Esto hay que sacarlo del maximo del csv. Es una lista de tuplas con el maximo y minimo de cada coordenada
+listaMinMax = [(0,0.5),(0,0.5)]   --Esto hay que sacarlo del maximo del csv. Es una lista de tuplas con el maximo y minimo de cada coordenada
 
 generaCentros :: Int -> IO [Vector]
 generaCentros k

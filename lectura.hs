@@ -2,6 +2,8 @@ import Text.CSV
 import System.Directory (doesFileExist)
 import Data.Array
 
+import Representacion2D
+import Distancias
 import ClusterAglomerativoArbol
 import KMeans
 import Data.Array
@@ -112,16 +114,38 @@ algKMeans datos = do
     if modo == "M"
         then do
             res <- (kMeans m datos)
+            let aux = (asocXM datos res)
             putStrLn (show res)
+            representa res aux
         else 
             if modo == "CM"
                 then do
                     res <- (kMeansCompleto m datos)
+                    aux <- (kMeans m datos)
                     putStrLn (show res)
+                    representa aux res
                 else do
                     putChar '\n'
                     putStrLn "Introduzca un modo valido"
                     algKMeans datos
+--representa :: [Vector] -> [(Vector, Vector)] -> IO ()
+representa m xm = do
+    if True -- Comprobar que tiene dos coordenadas
+        then do
+            putStr "¿Quiere una representacion grafica de los puntos: SI (S), NO (N)?"
+            x <- getLine
+            if x == "N"
+                then
+                    return ()
+                else if x == "S" then
+                    dibuja m xm
+                else do
+                    putStrLn "Introduzca una opcion valida"
+                    representa m xm
+    else 
+        return ()
+
+longTupla (a,b) = True
 
 clustAglomerativo datos = do
     putChar '\n'
