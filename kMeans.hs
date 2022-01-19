@@ -40,11 +40,11 @@ import CentrosAleatorios
 
 --kMeans :: (Floating a ,Ord a) => Integer -> [Vector a] -> [Vector a]
 kMeans k xs = do
-    m <- generaCentros k
+    m <- generaCentros k xs
     return (kMeansAux xs m) --Solo pruebas, hay que añadir funcion que calcule m
 
 kMeansCompleto k xs = do
-    m <- generaCentros k 
+    m <- generaCentros k xs 
     let mFinal = kMeansAux xs m
     return (asocXM xs mFinal)
 
