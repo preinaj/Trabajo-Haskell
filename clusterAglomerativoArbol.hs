@@ -14,8 +14,8 @@ import Distancias
 ---------------------------------
 
 -- Codigo para probarlo
--- > d = inicializaClusteringAglomerativo lv
--- > clusteringAglomerativo d
+-- > d = inicializaClusteringAglomerativoA lv
+-- > clusteringAglomerativoAux d
 
 type Cluster = [Vector]          
 type IdCluster = [Int]
@@ -87,24 +87,24 @@ inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (i
 
 -- Funcion previa al algoritmo de clustering, elige la forma de representacion de los cluster en la consola
 --clusteringAglomerativo :: Dendogram -> String -> Nodo
-clusteringAglomerativoA dendogram modo
-    | modo == "AI" = toDataTreeId (clusteringAglomerativoAux dendogram)
-    | modo == "AC" = toDataTreeCl (clusteringAglomerativoAux dendogram)
+clusteringAglomerativoA fdistancia dendogram modo
+    | modo == "AI" = toDataTreeId (clusteringAglomerativoAux fdistancia dendogram)
+    | modo == "AC" = toDataTreeCl (clusteringAglomerativoAux fdistancia dendogram)
     | otherwise = error "Modo no valido"
 
-clusteringAglomerativoN dendogram = clusteringAglomerativoAux dendogram
+clusteringAglomerativoN fdistancia dendogram = clusteringAglomerativoAux fdistancia dendogram
 
 -- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
-clusteringAglomerativoAux :: Dendogram -> Nodo
-clusteringAglomerativoAux dendogram 
+clusteringAglomerativoAux :: Distancia -> Dendogram -> Nodo
+clusteringAglomerativoAux fdistancia dendogram 
     | condParada        = head $ dendogram
-    | otherwise         = clusteringAglomerativoAux (calculaSiguienteNivel dendogram)
+    | otherwise         = clusteringAglomerativoAux fdistancia (calculaSiguienteNivel fdistancia dendogram)
     where   condParada = length dendogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
 
 -- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
-calculaSiguienteNivel :: Dendogram -> Dendogram
-calculaSiguienteNivel dendogram = newDendogram
-    where   clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima dendogram
+calculaSiguienteNivel :: Distancia -> Dendogram -> Dendogram
+calculaSiguienteNivel fdistancia dendogram = newDendogram
+    where   clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima fdistancia dendogram
             (c1Id, c1list) = datosClusterFromArbol c1
             (c2Id, c2list) = datosClusterFromArbol c2
             newClusterId = c1Id ++ c2Id
@@ -120,10 +120,10 @@ eliminaCluster x (y:ys)
 
 -- Dada una lista de clusters, devuelve el par ( los 2 clusters mas cercanos, distancia entre ellos)
 -- Para medir la distancia entre clusters utiliza la media
-clustersDistanciaMinima :: Dendogram -> ((Nodo, Nodo), Double)
-clustersDistanciaMinima d = ((fromJust (nodoAsociadoACluster d c1list), fromJust(nodoAsociadoACluster d c2list)), distancia)
+clustersDistanciaMinima :: Distancia -> Dendogram -> ((Nodo, Nodo), Double)
+clustersDistanciaMinima fdistancia d = ((fromJust (nodoAsociadoACluster d c1list), fromJust(nodoAsociadoACluster d c2list)), distancia)
     where   vss = listaClustersActuales2 d 
-            ((c1list, c2list), distancia ) = head(sortBy sndTuple (calculaMatrixProximidad vss))
+            ((c1list, c2list), distancia ) = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
 
 
 sndTuple (x1,y1) (x2,y2)
@@ -134,17 +134,17 @@ sndTuple (x1,y1) (x2,y2)
 
 
 -- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
-calculaMatrixProximidad :: [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
-calculaMatrixProximidad [] = []
-calculaMatrixProximidad (vs:vss) = calculaDistanciasAUnCluster vs vss ++ (calculaMatrixProximidad vss)
+calculaMatrixProximidad :: Distancia -> [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
+calculaMatrixProximidad fdistancia [] = []
+calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
 -- Distancia de todo los clusters a uno en concreto
-calculaDistanciasAUnCluster vs [] = []
-calculaDistanciasAUnCluster vs (xs:xss) = ((vs,xs), distanciaEntreClusters vs xs):(calculaDistanciasAUnCluster vs xss)
+calculaDistanciasAUnCluster fdistancia vs [] = []
+calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
 
 -- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: [Vector] -> [Vector] -> Double
-distanciaEntreClusters v1 v2 = distEuclidea vm1 vm2
+distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 
@@ -165,6 +165,6 @@ toDataTreeCl (H id cl) = Node (show (cl)) []
 toDataTreeCl (N id cl n1 n2 ) = Node (show (cl)) [toDataTreeCl n1, toDataTreeCl n2]
 
 -- a = inicializaClusteringAglomerativo lv
--- d = clusteringAglomerativo a
+-- d = clusteringAglomerativo distEuclidea a "AI"
 -- e = toDataTree d
 -- f = putStrLn $ drawTree e

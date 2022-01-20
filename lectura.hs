@@ -108,7 +108,7 @@ algKMeans datos = do
     putStrLn "--------------------------------------"
     putChar '\n'
     distancia <- seleccionaDistancia
-    putStrLn (show(typeOf distancia))
+    -- putStrLn (show(typeOf distancia))
     putChar '\n'
     putStr "Indique el numero de centros para el algoritmo: "
     x <- getLine -- Añadir comprobacion numero valido
@@ -169,7 +169,7 @@ clustAglomerativo datos = do
         else do
             if xs == "A"
                 then 
-                    clustAglomerativoArbol datos
+                    clustAglomerativoArbol distancia datos
                 else do
                     putChar '\n'
                     putStrLn "Introduzca una opción válida"
@@ -196,22 +196,22 @@ fst' (a,_,_) = a
 snd' (_,a,_) = a
 thr' (_,_,a) = a
 
-clustAglomerativoArbol datos = do
+clustAglomerativoArbol fdistancia datos = do
     putChar '\n'
     putStr "Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): "
     modo <- getLine
     let d = inicializaClusteringAglomerativoA datos --Aqui tendrían que venir los datos de verdad
     if modo == "AC" || modo == "AI"
         then
-            putStrLn $ drawTree (clusteringAglomerativoA d modo)
+            putStrLn $ drawTree (clusteringAglomerativoA fdistancia d modo)
         else
             if modo == "N"
                 then
-                    putStrLn ( show (clusteringAglomerativoN d))
+                    putStrLn ( show (clusteringAglomerativoN fdistancia d))
                 else do
                     putChar '\n'
                     putStrLn "Introduzca una opción válida"
-                    clustAglomerativoArbol datos
+                    clustAglomerativoArbol fdistancia datos
 
 
 seleccionaDistancia = do
