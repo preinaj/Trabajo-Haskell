@@ -31,21 +31,22 @@ import CentrosAleatorios
 -- vms = asocXM vs ms
 
 
---kMeans :: (Floating a ,Ord a) => Integer -> [Vector a] -> [Vector a]
-kMeans k xs = do
+kMeans :: Int -> [Vector] -> Distancia -> IO [Vector]
+kMeans k xs d = do
     m <- generaCentros k xs
-    return (kMeansAux xs m) --Solo pruebas, hay que añadir funcion que calcule m
+    return (kMeansAux xs m d) --Solo pruebas, hay que añadir funcion que calcule m
 
-kMeansCompleto k xs = do
+kMeansCompleto :: Int -> [Vector] -> Distancia -> IO [(Vector,Vector)]
+kMeansCompleto k xs d = do
     m <- generaCentros k xs 
-    let mFinal = kMeansAux xs m
-    return (asocXM xs mFinal)
+    let mFinal = kMeansAux xs m d
+    return (asocXM xs mFinal d)
 
---kMeans :: (Floating a ,Ord a) => Integer -> [Vector a] -> [Vector a]
-kMeansAux xs m 
+kMeansAux :: [Vector] -> [Vector] -> Distancia -> [Vector]
+kMeansAux xs m d
     | getNewM xms m == m = m
-    | otherwise = kMeansAux xs (getNewM xms m)
-        where xms = asocXM xs m
+    | otherwise = kMeansAux xs (getNewM xms m) d
+        where xms = asocXM xs m d
 
 getNewM xms [] = []
 getNewM xms (m:ms) = [calculaMediaM xms m] ++ (getNewM xms ms) --Quizas hacer una auxiliar mas para no tener que pasar el replicate como argumento
@@ -56,16 +57,17 @@ calculaMediaMAux [] m 0 _ = m
 calculaMediaMAux [] m cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length m)]]
 calculaMediaMAux (xm:xms) m cont acc = if (snd xm) == m then calculaMediaMAux xms m (cont+1) [i + j  | (i,j) <- zip (elems (fst xm)) (acc)] else calculaMediaMAux xms m cont acc
 
-asocXM xs ms 
+asocXM :: [Vector] -> [Vector] -> Distancia -> [(Vector,Vector)]
+asocXM xs ms d
     | null xs || null ms = error "Lista de vectores o centros vacia"
-    | otherwise = asocXMAux xs ms []
+    | otherwise = asocXMAux xs ms d []
 
-asocXMAux :: [Vector ] -> [Vector ] -> [(Vector ,Vector )] -> [(Vector ,Vector )]
-asocXMAux [] _ acc = acc
-asocXMAux (x:xs) ms acc = asocXMAux xs ms ([(x,(getMinDist x ms))] ++ acc)
+--asocXMAux :: [Vector ] -> [Vector ] -> [(Vector ,Vector )] -> [(Vector ,Vector )]
+asocXMAux [] _ d acc = acc
+asocXMAux (x:xs) ms d acc = asocXMAux xs ms d ([(x,(getMinDist x ms d))] ++ acc)
 
 
-getMinDist x ms = snd (head (sortBy fstTuple [((distEuclidea x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
+getMinDist x ms d = snd (head (sortBy fstTuple [((d x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
 
 fstTuple (x1,y1) (x2,y2)
     | x1 > x2 = GT 

@@ -110,7 +110,7 @@ algKMeans datos = do
     distancia <- seleccionaDistancia
     -- putStrLn (show(typeOf distancia))
     putChar '\n'
-    putStr "Indique el numero de centros para el algoritmo: "
+    putStr "Indique el numero de centros para el algoritmo (entre 1 y 10): " --Revisar esta condición
     x <- getLine -- Añadir comprobacion numero valido
     let m = read x :: Int
     putChar '\n'
@@ -118,15 +118,15 @@ algKMeans datos = do
     modo <- getLine
     if modo == "M"
         then do
-            res <- (kMeans m datos)
-            let aux = (asocXM datos res)
+            res <- (kMeans m datos distancia)
+            let aux = (asocXM datos res distancia)
             putStrLn (show res)
             representa res aux
         else 
             if modo == "CM"
                 then do
-                    res <- (kMeansCompleto m datos)
-                    aux <- (kMeans m datos)
+                    res <- (kMeansCompleto m datos distancia)
+                    aux <- (kMeans m datos distancia) -- Sacar los datos de res, no volverlso a calcular
                     putStrLn (show res)
                     representa aux res
                 else do
