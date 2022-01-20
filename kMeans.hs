@@ -65,7 +65,7 @@ asocXMAux [] _ acc = acc
 asocXMAux (x:xs) ms acc = asocXMAux xs ms ([(x,(getMinDist x ms))] ++ acc)
 
 
-getMinDist x ms = snd (head (sortBy fstTuple [((distEuclid x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
+getMinDist x ms = snd (head (sortBy fstTuple [((distEuclidea x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
 
 fstTuple (x1,y1) (x2,y2)
     | x1 > x2 = GT 

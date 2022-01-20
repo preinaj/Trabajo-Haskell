@@ -1,6 +1,6 @@
 module Distancias
-(   distEuclid,     -- Funciones de tipo: Vector a -> Vector a -> a
-    distManh,       
+(   distEuclidea,     -- Funciones de tipo: Vector a -> Vector a -> a
+    distManhattan,       
     distHamming,
     listaVector,
     Vector,
@@ -15,14 +15,14 @@ listaVector :: [Double] -> Vector
 listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 -- Distancia Euclidea 
-distEuclid :: Distancia
-distEuclid v1 v2 
+distEuclidea :: Distancia
+distEuclidea v1 v2 
     | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
     | otherwise = error "Vectores incompatibles"
 
 -- Distancia Manhattan
-distManh :: Distancia
-distManh v1 v2 
+distManhattan :: Distancia
+distManhattan v1 v2 
     | indices v1 == indices v2 = sum[abs (x - y) | (x,y) <- zip (elems v1) (elems v2)]
     | otherwise = error "Vectores incompatibles"
 

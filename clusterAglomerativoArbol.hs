@@ -144,7 +144,7 @@ calculaDistanciasAUnCluster vs (xs:xss) = ((vs,xs), distanciaEntreClusters vs xs
 
 -- Distancia entre dos clusters cualesquiera
 distanciaEntreClusters :: [Vector] -> [Vector] -> Double
-distanciaEntreClusters v1 v2 = distEuclid vm1 vm2
+distanciaEntreClusters v1 v2 = distEuclidea vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 

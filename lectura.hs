@@ -12,6 +12,8 @@ import Data.Tree
 import Data.IORef
 import System.IO.Unsafe
 import Debug.Trace
+import Data.Typeable
+import Data.Maybe
 
 data Dataset4Clustering  = Dataset4Clustering {
     nombre :: String, 
@@ -105,6 +107,9 @@ algKMeans datos = do
     putStrLn "       ALGORITMO DE K-MEDIAS"
     putStrLn "--------------------------------------"
     putChar '\n'
+    distancia <- seleccionaDistancia
+    putStrLn (show(typeOf distancia))
+    putChar '\n'
     putStr "Indique el numero de centros para el algoritmo: "
     x <- getLine -- Añadir comprobacion numero valido
     let m = read x :: Int
@@ -152,6 +157,8 @@ clustAglomerativo datos = do
     putStrLn "--------------------------------------"
     putStrLn "ALGORITMO DE CLUSTERING AGLOMERATIVO"
     putStrLn "--------------------------------------"
+    putChar '\n'
+    distancia <- seleccionaDistancia
     putChar '\n'
     putStr "Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): "
     xs <- getLine
@@ -205,3 +212,19 @@ clustAglomerativoArbol datos = do
                     putChar '\n'
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativoArbol datos
+
+
+seleccionaDistancia = do
+    putStr "Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): "
+    distanciaStr <- getLine
+    let distancia = case distanciaStr of
+            "DE" -> Just distEuclidea
+            "DM" -> Just distManhattan
+            "DH" -> Just distHamming
+            _    -> Nothing
+    if (isNothing distancia) then do
+        putChar '\n'
+        putStrLn "Introduzca una opcion valida"
+        seleccionaDistancia
+    else do
+        return (fromJust distancia)

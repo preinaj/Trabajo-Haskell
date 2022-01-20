@@ -26,8 +26,8 @@ vs = [v1, v2, v3, v4, v5]
 vms = asocXM vs ms
 
 -- Distancia Euclidea 
-distEuclid :: Floating a => Vector a -> Vector a -> a
-distEuclid v1 v2 
+distEuclidea :: Floating a => Vector a -> Vector a -> a
+distEuclidea v1 v2 
     | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
     | otherwise = error "Vectores incompatibles"
 
@@ -90,7 +90,7 @@ asocXMAux [] _ acc = acc
 asocXMAux (x:xs) ms acc = asocXMAux xs ms ([(x,(getMinDist x ms))] ++ acc)
 
 
-getMinDist x ms = snd (head (sortBy fstTuple [((distEuclid x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
+getMinDist x ms = snd (head (sortBy fstTuple [((distEuclidea x m), m) | m <- ms]))  --Cambiar para que se le pueda pasar la distancia como argumento
 
 fstTuple (x1,y1) (x2,y2)
     | x1 > x2 = GT 
