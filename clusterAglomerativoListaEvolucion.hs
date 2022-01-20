@@ -108,7 +108,7 @@ clusteringAglomerativoLE fdistancia listaEvolucion
 -- Resultado:
 -- siguienteNivel :: EvolucionClusters      Nuevo nivel obtenido
 
--- Funciones asociadas:
+-- Funciones relacionadas:
 -- eliminaCluster :: Cluster -> [Cluster] -> [Cluster]      Elimina un cluster de la lista de clusters. 
 --                                                          Tras fusionar dos clusters, se elimina su
 --                                                          aparicion por separado.
@@ -141,7 +141,7 @@ eliminaCluster x (y:ys)
 -- ((c1,c2),dist) :: ((Cluster, Cluster), Double)   Los dos clusters mas proximos
 --                                                  y la distancia entre ellos 
 
--- Funciones asociadas:
+-- Funciones relacionadas:
 -- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
 --                                          Comparador por el segundo elemento de la tupla                                                            
 
@@ -171,7 +171,7 @@ sndTuple (x1,y1) (x2,y2)
 --                                                  "Matriz" que asocia a cada dos clusters
 --                                                  la distancia entre ellos 
 
--- Funciones asociadas:
+-- Funciones relacionadas:
 -- calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [( (Cluster, Cluster), Double)]
 --                                                  Calcula la distancia de todos los clusters
 --                                                  a uno en concreto
