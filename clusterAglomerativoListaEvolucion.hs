@@ -66,14 +66,14 @@ inicializaClusteringAglomerativoLE puntosIniciales = [ ( 0, [ [punto] | punto <-
 -- Funcion clusteringAglomerativoLE :: Distancia -> EvolucionClusters -> EvolucionClusters
 -- Es la funcion base del algoritmo de clustering: obtiene la evolucion de
 -- la lista de clusters.
--- Recibe una funcion distancia y la lista de evolucion de los clusters y 
--- aplica el algoritmo de clustering hasta que todos los vectores se unifiquen 
--- en un mismo cluster (length last listclusters == 1).
+-- Recibe una funcion distancia y va actualizando la lista de evolucion 
+-- de los clusters, aplicando recursivamente iteraciones del algoritmo 
+-- de clustering hasta que todos los vectores se unifiquen bajo un mismo cluster.
 
 -- Cuando se utilice esta funcion sera inicializada con el resultado de
--- inicializaClusteringAglomerativoLE. 
-
--- Para aplicar una iteracion del algoritmo la funcion llama a la calculaSiguienteNivel. 
+-- inicializaClusteringAglomerativoLE. Para aplicar una iteracion del algoritmo
+-- llama a calculaSiguienteNivel y el nivel obtenido lo introduce en la lista
+-- de evoluciones. 
 
 -- Parametros:     
 -- fdistancia :: Distancia                  Tipo de distancia a usar
@@ -92,7 +92,27 @@ clusteringAglomerativoLE fdistancia listaEvolucion
     where   nivelActual@(numNivel, listclusters, numClusters) = last listaEvolucion
             condParada = length listclusters == 1
 
--- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
+
+-- Funcion clusteringAglomerativoLE :: Distancia -> Nivel -> Nivel
+-- Dado un nivel toma la correspondiente lista de clusters, fusiona los 
+-- dos clusters mas cercanos y devuelve el siguiente nivel.
+
+-- Para encontrar los clusters mas proximos llama a la funcion 
+-- clustersDistanciaMinima
+
+-- Parametros:     
+-- fdistancia :: Distancia                  Tipo de distancia a usar
+-- nivelActual :: EvolucionClusters         nivelActual = (numIter, listClusters, numClusters)
+--                                          Clusters formados hasta la iteracion
+--                                          actual y vectores que los integran
+-- Resultado:
+-- siguienteNivel :: EvolucionClusters      Nuevo nivel obtenido
+
+-- Funciones auxiliares:
+-- eliminaCluster :: Cluster -> [Cluster] -> [Cluster]      Elimina un cluster de la lista de clusters. 
+--                                                          Tras fusionar dos clusters, se elimina su
+--                                                          aparicion por separado.
+
 calculaSiguienteNivel :: Distancia -> Nivel -> Nivel
 calculaSiguienteNivel fdistancia nivelActual = ( numNivel+1, listClustersNueva, length listClustersNueva )
     where   (numNivel, listclusters, numClusters) = nivelActual
@@ -105,12 +125,32 @@ eliminaCluster _ [] = []
 eliminaCluster x (y:ys) 
     | x == y    = ys
     | otherwise = y : eliminaCluster x ys
+    
 
--- Dada una lista de clusters, devuelve el par ( los 2 clusters mas cercanos, distancia entre ellos)
--- Para medir la distancia entre clusters utiliza la media
+-- Funcion clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
+-- Dada una funcion de distancia y la lista de clusters, devuelve el par 
+-- (2 clusters mas cercanos, distancia entre ellos)
+
+-- Se define la distancia entre clusters como la media entre dos vectores
+-- cualesquiera de los que integran los clusters. Para calcular la distancia 
+-- entre vectores de los clusters llama a calculaMatrizProximidad
+
+-- Parametros:     
+-- fdistancia :: Distancia                          Tipo de distancia a usar
+-- vss :: [Clusters]                                Lista de clusters
+-- Resultado:
+-- ((c1,c2),dist) :: ((Cluster, Cluster), Double)   Los dos clusters mas proximos
+--                                                  y la distancia entre ellos 
+
+-- Funciones auxiliares:
+-- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
+--                                          Comparador por el segundo elemento de la tupla                                                            
+
+
 clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
 clustersDistanciaMinima fdistancia vss = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
 
+sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering
 sndTuple (x1,y1) (x2,y2)
     | y1 > y2 = GT 
     | otherwise = LT
