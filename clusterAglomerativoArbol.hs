@@ -17,7 +17,7 @@ import Distancias
 -- > d = inicializaClusteringAglomerativoA lv
 -- > clusteringAglomerativoAux d
 
-type Cluster = [Vector]          
+-- type Cluster = [Vector]          
 type IdCluster = [Int]
 
 data Nodo = H IdCluster Cluster | N IdCluster Cluster Nodo Nodo  

@@ -1,49 +1,90 @@
 module ClusterAglomerativoListaEvolucion(
-    inicializaClusteringAglomerativoLE,
-    clusteringAglomerativoLE
+    inicializaClusteringAglomerativoLE,     -- [Vector] -> EvolucionClusters
+    clusteringAglomerativoLE                -- Distancia -> EvolucionClusters -> EvolucionClusters
 ) where
 
+-------------------------------------------------------------------------------
+-- Descripcion general del modulo
+-- Este modulo tiene por objeto implementar el algoritmo de clustering aglomerativo
+-- modelandolo mediante una lista de evolucion.
 
+-- El algoritmo comienza con un cluster por cada punto (vector). En las sucesivas 
+-- iteraciones del algoritmo, se toman los dos clusters mas proximos y se fusionan.
+-- El algoritmo finaliza cuando todos los vectores pertenecen al mismo cluster.
+
+-- Imagen de referencia: https://editor.analyticsvidhya.com/uploads/45830agg_fig.gif
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Modulos auxiliares importados 
 import Data.Array
 import Data.List
 import System.Random
 import Distancias
+-------------------------------------------------------------------------------
 
--- Codigo para probarlo
--- > d = inicializaClusteringAglomerativo lv
--- > clusteringAglomerativo d
+-------------------------------------------------------------------------------
+-- Definicion de tipos
+
+-- type Cluster = [Vector]              -- Recogido en Distancias.hs
+type Nivel = (Int, [Cluster], Int)      -- (numIter, listClusters, numClusters) :: (Int, [Cluster], Int)
+                                        -- Tipo que recoge los clusters existentes  
+                                        -- en una iteracion concreta del algoritmo.
+type EvolucionClusters = [Nivel]        -- Tipo que muestra la evolucion de los
+                                        -- clusters a lo largo de las sucesivas
+                                        -- iteraciones.
+
+-- El modelado mediante la lista de evolucion (EvolucionClusters) consiste en que 
+-- cada elemento de la lista (Nivel) recoge el resultado de una iteracion del algoritmo,
+-- es decir, los clusters formados en la iteracion i-esima. 
+
+-- Permitiendo visualizar el avance en la asociacion de clusters.
+-------------------------------------------------------------------------------
 
 
-type Cluster = [Vector]
-type Nivel = (Int, [Cluster], Int) -- (Numero de nivel, lista de clusters de ese nivel, numero de clusters de ese nivel)
-type EvolucionClusters = [Nivel]
+-------------------------------------------------------------------------------
+-- Lista de funciones del modulo
 
+-- Funcion inicializaClusteringAglomerativoLE :: [Vector] -> EvolucionClusters
+-- Recibe la lista de los vectores (datos del dataset) y retorna el primer
+-- nivel del algoritmo: todos los elementos de la lista de vectores forman 
+-- un cluster por si mismos.
+-- El objetivo es utilizarla como inicializacion del algoritmo de clustering 
+-- (clusteringAglomerativoLE).
 
-v1 = listaVector [2.0,0.0]
-v2 = listaVector [10.0,20.0]
-v3 = listaVector [2.0,1.0]
-v4 = listaVector [15.0,7.0]
---v5 = listaVector [7.0,2.0]
+-- Parametros:     
+-- puntosIniciales :: [Vector]              Lista de vectores del dataset
+-- Resultado:
+-- [Nivel 0] :: EvolucionClusters           Lista de longitud 1 que contiene
+--                                          el nivel 0 (inicializacion):
+--                                          [(numIter=0, listClustersIter=[[v1], [v2], ...], numClustersIter=numVectores)] 
 
--- m1 = listaVector [0.0,0.0]
--- m2 = listaVector [3.0,3.0]
-
--- ms = [m1, m2]
--- vs = [v1, v2, v3, v4, v5]
-
--- ms' = [[m1], [m2]]
--- vs' = [[v1], [v2], [v3], [v4], [v5]]
-
-lv = [v1, v2, v3, v4]
-
--------------------------------
-
--- Obtiene el primer nivel a partir de los datos:
--- todos los elementos forman un cluster por si mismos
 inicializaClusteringAglomerativoLE :: [Vector] -> EvolucionClusters
 inicializaClusteringAglomerativoLE puntosIniciales = [ ( 0, [ [punto] | punto <- puntosIniciales], length puntosIniciales ) ]
 
--- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
+
+-- Funcion clusteringAglomerativoLE :: Distancia -> EvolucionClusters -> EvolucionClusters
+-- Es la funcion base del algoritmo de clustering: obtiene la evolucion de
+-- la lista de clusters.
+-- Recibe una funcion distancia y la lista de evolucion de los clusters y 
+-- aplica el algoritmo de clustering hasta que todos los vectores se unifiquen 
+-- en un mismo cluster (length last listclusters == 1).
+
+-- Cuando se utilice esta funcion sera inicializada con el resultado de
+-- inicializaClusteringAglomerativoLE. 
+
+-- Para aplicar una iteracion del algoritmo la funcion llama a la calculaSiguienteNivel. 
+
+-- Parametros:     
+-- fdistancia :: Distancia                  Tipo de distancia a usar
+-- listaEvolucion :: EvolucionClusters      Lista con los cambios que va 
+--                                          sufriendo la lista de clusters
+-- Resultado:
+-- listaEvolucionNew :: EvolucionClusters   Lista con todos cambios que ha
+--                                          sufrido la lista de clusters a
+--                                          lo largo de las sucesivas iteracion (niveles)  
+--                                          [Nivel] = [(numIter, listClustersIter, numClustersIters)]     
+
 clusteringAglomerativoLE :: Distancia -> EvolucionClusters -> EvolucionClusters
 clusteringAglomerativoLE fdistancia listaEvolucion 
     | condParada        = listaEvolucion
@@ -96,3 +137,14 @@ calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!
 
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
+
+-------------------------------------------------------------------------------
+-- Codigo "de juguete" para pruebas unitarias
+-- v1 = listaVector [2.0,0.0]
+-- v2 = listaVector [10.0,20.0]
+-- v3 = listaVector [2.0,1.0]
+-- v4 = listaVector [15.0,7.0]
+-- lv = [v1, v2, v3, v4]
+-- *ClusterAglomerativoListaEvolucion> d = inicializaClusteringAglomerativoLE lv
+-- *ClusterAglomerativoListaEvolucion> clusteringAglomerativoLE distEuclidea d
+-------------------------------------------------------------------------------
