@@ -108,7 +108,7 @@ clusteringAglomerativoLE fdistancia listaEvolucion
 -- Resultado:
 -- siguienteNivel :: EvolucionClusters      Nuevo nivel obtenido
 
--- Funciones auxiliares:
+-- Funciones asociadas:
 -- eliminaCluster :: Cluster -> [Cluster] -> [Cluster]      Elimina un cluster de la lista de clusters. 
 --                                                          Tras fusionar dos clusters, se elimina su
 --                                                          aparicion por separado.
@@ -131,18 +131,17 @@ eliminaCluster x (y:ys)
 -- Dada una funcion de distancia y la lista de clusters, devuelve el par 
 -- (2 clusters mas cercanos, distancia entre ellos)
 
--- Se define la distancia entre clusters como la media entre dos vectores
--- cualesquiera de los que integran los clusters. Para calcular la distancia 
--- entre vectores de los clusters llama a calculaMatrizProximidad
+-- Para obtener la distancia entre pares de clusters (para poder calcular el minimo)
+-- llama a calculaMatrizProximidad
 
 -- Parametros:     
 -- fdistancia :: Distancia                          Tipo de distancia a usar
--- vss :: [Clusters]                                Lista de clusters
+-- vss :: [Cluster]                                Lista de clusters
 -- Resultado:
 -- ((c1,c2),dist) :: ((Cluster, Cluster), Double)   Los dos clusters mas proximos
 --                                                  y la distancia entre ellos 
 
--- Funciones auxiliares:
+-- Funciones asociadas:
 -- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
 --                                          Comparador por el segundo elemento de la tupla                                                            
 
@@ -156,27 +155,51 @@ sndTuple (x1,y1) (x2,y2)
     | otherwise = LT
 
 
--- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
-calculaMatrixProximidad :: Distancia -> [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
+-- Funcion calculaMatrixProximidad :: Distancia -> [Cluster] -> [( (Cluster, Cluster), Double)]
+-- Dada una funcion distancia y la lista de clusters obtiene una matriz simetrica 
+-- (optimo para no calcular cada distancia 2 veces) con la distancia entre 
+-- dos clusters cualesquiera. 
+
+-- Se define la distancia entre clusters como la distancia entre los puntos medios (centros)
+-- de dos clusters. 
+
+-- Parametros:     
+-- fdistancia :: Distancia                          Tipo de distancia a usar
+-- vss :: [Cluster]                                 Lista de clusters
+-- Resultado:
+-- [ ((c1,c2),dist) ] :: [ ((Cluster, Cluster), Double) ]   
+--                                                  "Matriz" que asocia a cada dos clusters
+--                                                  la distancia entre ellos 
+
+-- Funciones asociadas:
+-- calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [( (Cluster, Cluster), Double)]
+--                                                  Calcula la distancia de todos los clusters
+--                                                  a uno en concreto
+-- distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
+--                                                  Calcula la distancia entre dos clusters
+-- calculaMedia :: Cluster -> Vector                Calcula el punto medio de cada cluster
+
+
+calculaMatrixProximidad :: Distancia -> [Cluster] -> [( (Cluster, Cluster), Double )]
 calculaMatrixProximidad _ [] = []
 calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
--- Distancia de todo los clusters a uno en concreto
+-- Distancia de todos los clusters a uno en concreto
+calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [( (Cluster, Cluster), Double)]
 calculaDistanciasAUnCluster fdistancia vs [] = []
 calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
 
 -- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 
 -- Calcular el punto medio de cada cluster
+calculaMedia :: Cluster -> Vector
 calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!!0)))) 0)
-
-
-calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
-calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
+    where   calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
+            calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
 -------------------------------------------------------------------------------
 -- Codigo "de juguete" para pruebas unitarias

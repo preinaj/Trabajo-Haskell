@@ -31,7 +31,7 @@ import Distancias
 -- Resultado:
 -- [(min, max)] :: [(Double, Double)]       Lista de valores maximo y minimo de cada coordenada
 
--- Funciones auxiliares:
+-- Funciones asociadas:
 -- minMaxCoord :: Int -> [Vector] -> (Double, Double)   -- Dada una coordenada y los datos devuelve  
                                                         -- los valores (minimo, maximo) de la misma
 -- extraeValoresCoord :: Int -> [Vector] -> [Double]    -- Dada una coordenada y los datos devuelve 
@@ -63,7 +63,7 @@ extraeValoresCoord coord lvectores = map(\v -> v!coord) lvectores
 -- Resultado:
 -- [centros] :: IO [Vector]                 Lista de centros iniciales
 
--- Funciones auxiliares:
+-- Funciones asociadas:
 -- listaVectorIO :: IO [Double] -> IO Vector                    -- Transforma una lista de valores en un vector  
 -- generaUnNumero :: Int -> [(Double,Double)] -> IO [Double]    -- Dada una lista de intervalos para cada coordenada
                                                                 -- genera un vector donde cada coordenada se mueva 
