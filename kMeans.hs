@@ -10,13 +10,6 @@ import Data.List
 import System.Random
 import CentrosAleatorios
 
---type Vector = Array Int Double
-
-
--- Funcion auxiliar temportal para trabjar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
---listaVector :: [Double] -> Vector 
---listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
-
 -- Vectores de prueba (borrar cuando vayamos a entregar)
 
 -- v1 = listaVector [0.0,2.0]

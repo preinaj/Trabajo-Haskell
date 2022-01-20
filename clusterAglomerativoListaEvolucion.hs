@@ -7,13 +7,12 @@ module ClusterAglomerativoListaEvolucion(
 import Data.Array
 import Data.List
 import System.Random
+import Distancias
 
 -- Codigo para probarlo
 -- > d = inicializaClusteringAglomerativo lv
 -- > clusteringAglomerativo d
 
-
-type Vector = Array Int Double
 
 type Cluster = [Vector]
 type Nivel = (Int, [Cluster], Int) -- (Numero de nivel, lista de clusters de ese nivel, numero de clusters de ese nivel)
@@ -36,10 +35,6 @@ v4 = listaVector [15.0,7.0]
 -- vs' = [[v1], [v2], [v3], [v4], [v5]]
 
 lv = [v1, v2, v3, v4]
-
--- Funcion auxiliar temportal para trabajar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
-listaVector :: [Double] -> Vector
-listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 -------------------------------
 
@@ -94,12 +89,6 @@ distanciaEntreClusters :: [Vector] -> [Vector] -> Double
 distanciaEntreClusters v1 v2 = distEuclid vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
-
-distEuclid :: Vector -> Vector -> Double
-distEuclid v1 v2 
-    | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
-    | otherwise = error "Vectores incompatibles"
-
 
 -- Calcular el punto medio de cada cluster
 calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!!0)))) 0)

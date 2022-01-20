@@ -10,13 +10,13 @@ import Data.List
 import System.Random
 import Data.Maybe
 import Data.Tree
+import Distancias
 ---------------------------------
 
 -- Codigo para probarlo
 -- > d = inicializaClusteringAglomerativo lv
 -- > clusteringAglomerativo d
 
-type Vector = Array Int Double
 type Cluster = [Vector]          
 type IdCluster = [Int]
 
@@ -48,10 +48,6 @@ lv = [v1, v2, v3, v4]
 -- d =  [ ( N [1,2] [v1, v2] (H [1] [v1]) (H [2] [v2] ) ), 
 --             (H [3] [v3] ),
 --             (H [4] [v4] ) ] 
-
--- Funcion auxiliar temportal para trabajar con vectores de forma más sencilla (borrar cuando vayamos a entregar)
-listaVector :: [Double] -> Vector
-listaVector xs = array (1,length xs) [(y,x) | (x,y) <- (zip xs [1..length xs])]
 
 --------------------------------
 
@@ -151,11 +147,6 @@ distanciaEntreClusters :: [Vector] -> [Vector] -> Double
 distanciaEntreClusters v1 v2 = distEuclid vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
-
-distEuclid :: Vector -> Vector -> Double
-distEuclid v1 v2 
-    | indices v1 == indices v2 = sqrt (sum[(x - y)**2 | (x,y) <- zip (elems v1) (elems v2)])
-    | otherwise = error "Vectores incompatibles"
 
 
 -- Calcular el punto medio de cada cluster

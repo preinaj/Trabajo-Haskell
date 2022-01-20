@@ -13,7 +13,6 @@ import Data.IORef
 import System.IO.Unsafe
 import Debug.Trace
 
-type Vector = Array Int Double
 data Dataset4Clustering  = Dataset4Clustering {
     nombre :: String, 
     cabecera :: [String],
@@ -133,7 +132,7 @@ algKMeans datos = do
 representa m xm = do
     if True -- Comprobar que tiene dos coordenadas
         then do
-            putStr "¿Quiere una representacion grafica de los puntos: SI (S), NO (N)?"
+            putStr "¿Quiere una representacion grafica de los puntos: SI (S), NO (N)? "
             x <- getLine
             if x == "N"
                 then
