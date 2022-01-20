@@ -44,18 +44,18 @@ inicializaClusteringAglomerativoLE :: [Vector] -> EvolucionClusters
 inicializaClusteringAglomerativoLE puntosIniciales = [ ( 0, [ [punto] | punto <- puntosIniciales], length puntosIniciales ) ]
 
 -- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
-clusteringAglomerativoLE :: EvolucionClusters -> EvolucionClusters
-clusteringAglomerativoLE listaEvolucion 
+clusteringAglomerativoLE :: Distancia -> EvolucionClusters -> EvolucionClusters
+clusteringAglomerativoLE fdistancia listaEvolucion 
     | condParada        = listaEvolucion
-    | otherwise         = clusteringAglomerativoLE (listaEvolucion ++ [ calculaSiguienteNivel nivelActual ] )
+    | otherwise         = clusteringAglomerativoLE fdistancia (listaEvolucion ++ [ calculaSiguienteNivel fdistancia nivelActual ] )
     where   nivelActual@(numNivel, listclusters, numClusters) = last listaEvolucion
             condParada = length listclusters == 1
 
 -- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
-calculaSiguienteNivel :: Nivel -> Nivel
-calculaSiguienteNivel nivelActual = ( numNivel+1, listClustersNueva, length listClustersNueva )
+calculaSiguienteNivel :: Distancia -> Nivel -> Nivel
+calculaSiguienteNivel fdistancia nivelActual = ( numNivel+1, listClustersNueva, length listClustersNueva )
     where   (numNivel, listclusters, numClusters) = nivelActual
-            clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima listclusters
+            clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima fdistancia listclusters
             fusionClustersMasCercanos = c1 ++ c2
             listClustersNueva =  fusionClustersMasCercanos : (eliminaCluster c2 (eliminaCluster c1 listclusters))
 
@@ -67,8 +67,8 @@ eliminaCluster x (y:ys)
 
 -- Dada una lista de clusters, devuelve el par ( los 2 clusters mas cercanos, distancia entre ellos)
 -- Para medir la distancia entre clusters utiliza la media
-clustersDistanciaMinima :: [Cluster] -> ((Cluster, Cluster), Double)
-clustersDistanciaMinima vss = head(sortBy sndTuple (calculaMatrixProximidad vss))
+clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
+clustersDistanciaMinima fdistancia vss = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
 
 sndTuple (x1,y1) (x2,y2)
     | y1 > y2 = GT 
@@ -76,17 +76,17 @@ sndTuple (x1,y1) (x2,y2)
 
 
 -- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
-calculaMatrixProximidad :: [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
-calculaMatrixProximidad [] = []
-calculaMatrixProximidad (vs:vss) = calculaDistanciasAUnCluster vs vss ++ (calculaMatrixProximidad vss)
+calculaMatrixProximidad :: Distancia -> [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
+calculaMatrixProximidad _ [] = []
+calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
 -- Distancia de todo los clusters a uno en concreto
-calculaDistanciasAUnCluster vs [] = []
-calculaDistanciasAUnCluster vs (xs:xss) = ((vs,xs), distanciaEntreClusters vs xs):(calculaDistanciasAUnCluster vs xss)
+calculaDistanciasAUnCluster fdistancia vs [] = []
+calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
 
 -- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: [Vector] -> [Vector] -> Double
-distanciaEntreClusters v1 v2 = distEuclidea vm1 vm2
+distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 

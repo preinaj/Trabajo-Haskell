@@ -165,7 +165,7 @@ clustAglomerativo datos = do
     if xs == "LE"
         then do
             let d = inicializaClusteringAglomerativoLE datos
-            representaClusterAglomerativoLE (clusteringAglomerativoLE d)
+            representaClusterAglomerativoLE (clusteringAglomerativoLE distancia d)
         else do
             if xs == "A"
                 then 
