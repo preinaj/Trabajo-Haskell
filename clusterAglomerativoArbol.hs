@@ -110,20 +110,65 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 -------------------------------------------------------------------------------
 -- Lista de funciones "del algoritmo" del modulo
 
--- Obtiene el primer nivel a partir de los datos:
--- todos los elementos forman un cluster por si mismos
+-- Funcion inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
+-- Obtiene el primer nivel a partir de los datos: todos los elementos forman
+-- un cluster por si mismos (al principio solo hay hojas sin emparejar).
+-- El objetivo es utilizarla como inicializacion del algoritmo de clustering 
+-- (clusteringAglomerativoA).
+
+-- Parametros:
+-- puntosIniciales :: [Vector]              Lista de vectores del dataset
+-- Resultado:
+-- dendograma :: Dendogram                  Bosque de hojas (tantas hojas como
+--                                          puntos).
+
 inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
 inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
 
 
--- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
+-- Funcion clusteringAglomerativoA :: Distancia -> Dendogram -> Arbol
+-- Es la funcion base del algoritmo de clustering: obtiene un arbol que 
+-- refleja como se han ido fusionando los clusters.
+-- Recibe una funcion distancia y va actualizando el dendograma, aplicando 
+-- recursivamente iteraciones del algoritmo de clustering hasta que 
+-- todos los clusters (subarboles) se unifiquen en uno solo 
+-- (cuando el dendograma contenga un unico arbol).
+
+-- Cuando se utilice esta funcion sera inicializada con el resultado de
+-- inicializaClusteringAglomerativoA. Para aplicar una iteracion del algoritmo
+-- llama a calculaSiguienteNivel.
+
+-- Parametros:     
+-- fdistancia :: Distancia                  Tipo de distancia a usar
+-- dendogram :: Dendogram                   Bosque de dependencia entre clusters
+-- Resultado:
+-- arbol :: Arbol                           Arbol de dependencia entre clusters
+
 clusteringAglomerativoA :: Distancia -> Dendogram -> Arbol
 clusteringAglomerativoA fdistancia dendogram 
     | condParada        = head $ dendogram
     | otherwise         = clusteringAglomerativoA fdistancia (calculaSiguienteNivel fdistancia dendogram)
     where   condParada = length dendogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
 
--- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
+
+-- Funcion calculaSiguienteNivel :: Distancia -> Dendogram -> Dendogram
+-- Dado el dendograma, extrae el ultimo estado de los clusters, fusiona los 
+-- dos clusters mas cercanos y devuelve el siguiente nivel.
+
+-- Para encontrar los clusters mas proximos llama a la funcion 
+-- clustersDistanciaMinima
+
+-- Parametros:     
+-- fdistancia :: Distancia                  Tipo de distancia a usar
+-- dendograma :: Dendogram                  Lista de arboles con los clusters formados 
+--                                          hasta la iteracion actual
+-- Resultado:
+-- siguienteNivel :: Dendogram              Nuevo dendograma obtenido
+
+-- Funciones relacionadas:
+-- eliminaCluster :: Cluster -> [Cluster] -> [Cluster]      Tras fusionar dos arboles (clusters), se 
+--                                                          elimina su aparicion por separado en el dendograma.
+
 calculaSiguienteNivel :: Distancia -> Dendogram -> Dendogram
 calculaSiguienteNivel fdistancia dendogram = newDendogram
     where   clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima fdistancia dendogram
@@ -139,14 +184,31 @@ eliminaCluster arbol larboles = prefijo ++ sufijo
     where   prefijo = takeWhile(/=arbol) larboles 
             sufijo = drop (length prefijo + 1) larboles
 
--- Dada una lista de clusters, devuelve el par ( los 2 clusters mas cercanos, distancia entre ellos)
--- Para medir la distancia entre clusters utiliza la media
+-- Funcion clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
+-- Dada una funcion de distancia y la lista de clusters, devuelve el par 
+-- (2 clusters -vistos como subarboles- mas cercanos, distancia entre ellos)
+
+-- Para obtener la distancia entre pares de clusters (para poder calcular el minimo)
+-- llama a calculaMatrixProximidad
+
+-- Parametros:     
+-- fdistancia :: Distancia                          Tipo de distancia a usar
+-- d :: Dendogram                                   Lista de arboles con los clusters formados 
+--                                                  hasta la iteracion actual
+-- Resultado:
+-- ((c1,c2),dist) :: ((Arbol, Arbol), Double)       Los dos clusters/subarboles mas proximos
+--                                                  y la distancia entre ellos 
+
+-- Funciones relacionadas:
+-- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
+--                                          Comparador por el segundo elemento de la tupla                                                            
+
 clustersDistanciaMinima :: Distancia -> Dendogram -> ((Arbol, Arbol), Double)
 clustersDistanciaMinima fdistancia d = ((fromJust (arbolAsociadoACluster d c1list), fromJust(arbolAsociadoACluster d c2list)), distancia)
     where   vss = listaClustersActuales2 d 
             ((c1list, c2list), distancia ) = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
 
-
+sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering
 sndTuple (x1,y1) (x2,y2)
     | y1 > y2 = GT 
     | otherwise = LT
@@ -155,7 +217,7 @@ sndTuple (x1,y1) (x2,y2)
 
 
 -- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
-calculaMatrixProximidad :: Distancia -> [[Vector ]] -> [(([Vector ], [Vector ]), Double)]
+calculaMatrixProximidad :: Distancia -> [Cluster] -> [((Cluster, Cluster), Double)]
 calculaMatrixProximidad fdistancia [] = []
 calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
@@ -178,11 +240,6 @@ calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) |
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
 
--- a = inicializaClusteringAglomerativo lv
--- d = clusteringAglomerativo distEuclidea a "AI"
--- e = toDataTree d
--- f = putStrLn $ drawTree e
-
 -------------------------------------------------------------------------------
 -- Codigo "de juguete" para pruebas unitarias
 -- v1 = listaVector [2.0,0.0]
@@ -190,6 +247,6 @@ calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j)
 -- v3 = listaVector [2.0,1.0]
 -- v4 = listaVector [15.0,7.0]
 -- lv = [v1, v2, v3, v4]
--- 
--- 
+-- *ClusterAglomerativoArbol> d = inicializaClusteringAglomerativoA lv
+-- *ClusterAglomerativoArbol> clusteringAglomerativoA distEuclidea d
 -------------------------------------------------------------------------------
