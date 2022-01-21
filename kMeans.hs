@@ -162,3 +162,14 @@ fstTuple :: (Double, Vector) -> (Double, Vector) -> Ordering
 fstTuple (x1,y1) (x2,y2)
     | x1 > x2 = GT 
     | otherwise = LT
+
+-------------------------------------------------------------------------------
+-- Codigo "de juguete" para pruebas unitarias
+-- v1 = listaVector [2.0,0.0]
+-- v2 = listaVector [10.0,20.0]
+-- v3 = listaVector [2.0,1.0]
+-- v4 = listaVector [15.0,7.0]
+-- lv = [v1, v2, v3, v4]
+-- *KMeans> kMeans 3 lv distEuclidea
+-- *KMeans> kMeansCompleto 3 lv distEuclidea 
+-------------------------------------------------------------------------------
