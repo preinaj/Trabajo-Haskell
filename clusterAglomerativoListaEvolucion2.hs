@@ -123,10 +123,9 @@ calculaSiguienteNivel fdistancia nivelActual = ( numNivel+1, listClustersNueva, 
             listClustersNueva =  fusionClustersMasCercanos : (eliminaCluster c2 (eliminaCluster c1 listclusters))
 
 eliminaCluster :: Cluster -> [Cluster] -> [Cluster] 
-eliminaCluster _ [] = []
-eliminaCluster x (y:ys) 
-    | x == y    = ys
-    | otherwise = y : eliminaCluster x ys
+eliminaCluster cluster lclusters = prefijo ++ sufijo
+    where   prefijo = takeWhile(/=cluster) lclusters 
+            sufijo = drop (length prefijo + 1) lclusters
     
 
 -- Funcion clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)

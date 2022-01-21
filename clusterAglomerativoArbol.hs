@@ -142,10 +142,9 @@ calculaSiguienteNivel fdistancia dendogram = newDendogram
             newDendogram = fusionClustersMasCercanos : (eliminaCluster c2 (eliminaCluster c1 dendogram))
         
 eliminaCluster :: Arbol -> Dendogram -> Dendogram
-eliminaCluster _ [] = []
-eliminaCluster x (y:ys) 
-    | x == y    = ys
-    | otherwise = y : eliminaCluster x ys
+eliminaCluster arbol larboles = prefijo ++ sufijo
+    where   prefijo = takeWhile(/=arbol) larboles 
+            sufijo = drop (length prefijo + 1) larboles
 
 -- Dada una lista de clusters, devuelve el par ( los 2 clusters mas cercanos, distancia entre ellos)
 -- Para medir la distancia entre clusters utiliza la media
