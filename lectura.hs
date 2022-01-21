@@ -225,17 +225,31 @@ clustAglomerativoArbol fdistancia datos = do
     modo <- getLine
     let d = inicializaClusteringAglomerativoA datos --Aqui tendrían que venir los datos de verdad
     if modo == "AC" || modo == "AI"
-        then
-            putStrLn $ drawTree (clusteringAglomerativoA fdistancia d modo)
+        then do
+            let res = clusteringAglomerativoA fdistancia d
+            putStrLn ( drawTree (representaArbol res modo))
         else
             if modo == "N"
                 then
-                    putStrLn ( show (clusteringAglomerativoN fdistancia d))
+                    putStrLn ( show (clusteringAglomerativoA fdistancia d))
                 else do
                     putChar '\n'
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativoArbol fdistancia datos
 
+-- Usando las estructuras inferiores, representa por linea de comandos una estructura de arbol
+representaArbol res modo
+    | modo == "AI" = toDataTreeId res
+    | modo == "AC" = toDataTreeCl res
+    | otherwise = error "Modo no valido"
+
+-- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeId (H id cl) = Node (show (id)) []
+toDataTreeId (N id cl n1 n2 ) = Node (show (id)) [toDataTreeId n1, toDataTreeId n2]
+
+-- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeCl (H id cl) = Node (show (cl)) []
+toDataTreeCl (N id cl n1 n2 ) = Node (show (cl)) [toDataTreeCl n1, toDataTreeCl n2]
 
 seleccionaDistancia = do
     putStr "Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): "

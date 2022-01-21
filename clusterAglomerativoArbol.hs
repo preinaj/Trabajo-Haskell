@@ -1,7 +1,8 @@
 module ClusterAglomerativoArbol 
-    (inicializaClusteringAglomerativoA,
+    (
+    inicializaClusteringAglomerativoA,
     clusteringAglomerativoA,
-    clusteringAglomerativoN
+    Arbol (H, N)
     ) where 
 
 -------------------------------------------------------------------------------
@@ -114,20 +115,12 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
 inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
 
--- Funcion previa al algoritmo de clustering, elige la forma de representacion de los cluster en la consola
---clusteringAglomerativo :: Dendogram -> String -> Arbol
-clusteringAglomerativoA fdistancia dendogram modo
-    | modo == "AI" = toDataTreeId (clusteringAglomerativoAux fdistancia dendogram)
-    | modo == "AC" = toDataTreeCl (clusteringAglomerativoAux fdistancia dendogram)
-    | otherwise = error "Modo no valido"
-
-clusteringAglomerativoN fdistancia dendogram = clusteringAglomerativoAux fdistancia dendogram
 
 -- Funcion base del algoritmo de clustering: obtiene la evolucion de la lista de clusters
-clusteringAglomerativoAux :: Distancia -> Dendogram -> Arbol
-clusteringAglomerativoAux fdistancia dendogram 
+clusteringAglomerativoA :: Distancia -> Dendogram -> Arbol
+clusteringAglomerativoA fdistancia dendogram 
     | condParada        = head $ dendogram
-    | otherwise         = clusteringAglomerativoAux fdistancia (calculaSiguienteNivel fdistancia dendogram)
+    | otherwise         = clusteringAglomerativoA fdistancia (calculaSiguienteNivel fdistancia dendogram)
     where   condParada = length dendogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
 
 -- Dado un nivel, toma la correspondiente lista de clusters, fusiona los dos clusters mas cercanos y devuelve el siguiente nivel
@@ -184,13 +177,6 @@ calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
--- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
-toDataTreeId (H id cl) = Node (show (id)) []
-toDataTreeId (N id cl n1 n2 ) = Node (show (id)) [toDataTreeId n1, toDataTreeId n2]
-
--- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
-toDataTreeCl (H id cl) = Node (show (cl)) []
-toDataTreeCl (N id cl n1 n2 ) = Node (show (cl)) [toDataTreeCl n1, toDataTreeCl n2]
 
 -- a = inicializaClusteringAglomerativo lv
 -- d = clusteringAglomerativo distEuclidea a "AI"
