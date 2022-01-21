@@ -18,9 +18,11 @@ module ClusterAglomerativoListaEvolucion(
 -------------------------------------------------------------------------------
 -- Modulos auxiliares importados 
 import Data.Array
+import Data.Matrix
 import Data.List
 import System.Random
 import Distancias
+import Debug.Trace
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -93,7 +95,7 @@ clusteringAglomerativoLE fdistancia listaEvolucion
             condParada = length listclusters == 1
 
 
--- Funcion clusteringAglomerativoLE :: Distancia -> Nivel -> Nivel
+-- Funcion calculaSiguienteNivel :: Distancia -> Nivel -> Nivel
 -- Dado un nivel toma la correspondiente lista de clusters, fusiona los 
 -- dos clusters mas cercanos y devuelve el siguiente nivel.
 
@@ -142,19 +144,30 @@ eliminaCluster cluster lclusters = prefijo ++ sufijo
 
 -- Funciones relacionadas:
 -- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
---                                          Comparador por el segundo elemento de la tupla                                                            
+--                                          Comparador por el segundo elemento de la tupla   
 
+-- transformaMatriz :: Matrix Double -> [Cluster] -> [( (Cluster, Cluster), Double )]  -- Transoforma la estructura de datos Matrix en una lista de tuplas,
+                                                                                       -- cuyo primer elemento es un par de cluster y el segundo la distancia entre ambos
 
 clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
-clustersDistanciaMinima fdistancia vss = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
+clustersDistanciaMinima fdistancia lclusters = head(sortBy sndTuple lclustersDist)
+    where   matrizProx = calculaMatrixProximidad fdistancia lclusters
+            lclustersDist = transformaMatriz matrizProx lclusters
 
 sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering
 sndTuple (x1,y1) (x2,y2)
     | y1 > y2 = GT 
     | otherwise = LT
 
+transformaMatriz :: Matrix Double -> [Cluster] -> [( (Cluster, Cluster), Double )]
+transformaMatriz matriz lclusters = [ ((lclusters!!(i-1), lclusters!!(j-1)), getElem i j matriz) | i<- [1..n], j <- [1..n], i/=j ]
+    where   n = length lclusters
 
--- Funcion calculaMatrixProximidad :: Distancia -> [Cluster] -> [( (Cluster, Cluster), Double)]
+----------------------------------------------------------------------
+            
+
+
+-- Funcion calculaMatrixProximidad :: Distancia -> [Cluster] -> Matrix Double
 -- Dada una funcion distancia y la lista de clusters obtiene una matriz simetrica 
 -- (optimo para no calcular cada distancia 2 veces) con la distancia entre 
 -- dos clusters cualesquiera. 
@@ -164,29 +177,58 @@ sndTuple (x1,y1) (x2,y2)
 
 -- Parametros:     
 -- fdistancia :: Distancia                          Tipo de distancia a usar
--- vss :: [Cluster]                                 Lista de clusters
+-- listClusters :: [Cluster]                        Lista de clusters
 -- Resultado:
--- [ ((c1,c2),dist) ] :: [ ((Cluster, Cluster), Double) ]   
---                                                  "Matriz" que asocia a cada dos clusters
+-- matriz :: Matrix  
+--                                                  Matriz que asocia a cada dos clusters
 --                                                  la distancia entre ellos 
 
 -- Funciones relacionadas:
--- calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [( (Cluster, Cluster), Double)]
+-- calculaMatrixProximidadAux :: Distancia -> [(Int, Cluster)] -> Matrix Double -> Matrix Double
+--                                                  Funcion auxiliar que dada una matriz de 0,
+--                                                  la va rellenando con la distancia entre los clusters
+
+--recalculaMatriz :: Matrix Double -> [( ( (Int, Cluster), (Int, Cluster) ), Double)] -> Matrix Double
+--                                                  Funcion que va actualizando los valores de la matriz
+--                                                  calculando la distancia entre dos clusters
+
+-- calculaDistanciasAUnCluster :: Distancia -> (Int, Cluster) -> [(Int, Cluster)] -> [( ( (Int, Cluster), (Int, Cluster) ), Double)]
 --                                                  Calcula la distancia de todos los clusters
 --                                                  a uno en concreto
+
 -- distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 --                                                  Calcula la distancia entre dos clusters
+
 -- calculaMedia :: Cluster -> Vector                Calcula el punto medio de cada cluster
 
+calculaMatrixProximidad :: Distancia -> [Cluster] -> Matrix Double
+calculaMatrixProximidad fdistancia listClusters = calculaMatrixProximidadAux fdistancia lindClusters matrizacc
+    where   lindClusters = zip [1..] listClusters
+            dim = length listClusters
+            matrizacc = matrix dim dim (\(i,j) -> 0.0)
 
-calculaMatrixProximidad :: Distancia -> [Cluster] -> [( (Cluster, Cluster), Double )]
-calculaMatrixProximidad _ [] = []
-calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
+calculaMatrixProximidadAux :: Distancia -> [(Int, Cluster)] -> Matrix Double -> Matrix Double
+calculaMatrixProximidadAux fdistancia lindClusters matrizacc 
+    | null lindClusters = matrizacc
+    | otherwise = calculaMatrixProximidadAux fdistancia restoClusters matrizaccNew
+    where   headCluster = head lindClusters
+            restoClusters = tail lindClusters
+            distClusterActual2Resto = calculaDistanciasAUnCluster fdistancia headCluster restoClusters
+            matrizaccNew = recalculaMatriz matrizacc distClusterActual2Resto
 
--- Distancia de todos los clusters a uno en concreto
-calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [( (Cluster, Cluster), Double)]
-calculaDistanciasAUnCluster fdistancia vs [] = []
-calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
+recalculaMatriz :: Matrix Double -> [( ( (Int, Cluster), (Int, Cluster) ), Double)] -> Matrix Double
+recalculaMatriz matriz [] = matriz
+recalculaMatriz matriz ( ( ( (nc1, c1), (nc2, c2) ), distancia ) : xss)  = recalculaMatriz matrizNew2 xss
+    where   matrizNew = setElem distancia (nc1, nc2) matriz
+            matrizNew2 = setElem distancia (nc2, nc1) matrizNew
+
+calculaDistanciasAUnCluster :: Distancia -> (Int, Cluster) -> [(Int, Cluster)] -> [( ( (Int, Cluster), (Int, Cluster) ), Double)]
+calculaDistanciasAUnCluster fdistancia _ [] = []
+calculaDistanciasAUnCluster fdistancia clusterH (clusterS:xss) = distanciaCHaCS : avanza
+    where   (nch, ch) = clusterH
+            (ncs, cs) = clusterS
+            distanciaCHaCS = ( (clusterH, clusterS), distanciaEntreClusters fdistancia ch cs)
+            avanza = calculaDistanciasAUnCluster fdistancia clusterH xss
 
 -- Distancia entre dos clusters cualesquiera
 distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
