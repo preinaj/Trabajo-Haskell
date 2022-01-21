@@ -216,26 +216,53 @@ sndTuple (x1,y1) (x2,y2)
 
 
 
--- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
+-- Funcion calculaMatrixProximidad :: Distancia -> [Cluster] -> [((Cluster, Cluster), Double)]
+-- Dada una funcion distancia y la lista de listas de vectores obtiene una "matriz" , es decir, una lista cuyo primer de tuplas
+-- cuyo primer elemento es un par de lista de vectores (que llamaremos clusters) 
+-- y el segundo elemento es la distancia entre estos 
+
+-- Se define la distancia entre clusters como la distancia entre los puntos medios (centros)
+-- de dos clusters. 
+
+-- Parametros:     
+-- fdistancia :: Distancia                          Tipo de distancia a usar
+-- vss :: [Cluster]                                 Lista de listas de vectores
+-- Resultado:
+-- [((c1,c2),dist)] :: [((Cluster, Cluster), Double)] 
+--                                                  "Matriz" que asocia a cada dos clusters
+--                                                  la distancia entre ellos 
+
+-- Funciones relacionadas:
+-- calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [((Cluster, Cluster), Double)]
+--                                                  Calcula la distancia de todos los clusters
+--                                                  a uno en concreto
+
+-- distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
+--                                                  Calcula la distancia entre dos clusters
+
+-- calculaMedia :: Cluster -> Vector               Calcula el punto medio de cada cluster
+
+-- calculaMediaAux :: Cluster -> Int -> Cluster -> Vector 
+--                                                    Usa un acumulador para calcular el 
+--                                                    punto medio de un cluster
+
 calculaMatrixProximidad :: Distancia -> [Cluster] -> [((Cluster, Cluster), Double)]
 calculaMatrixProximidad fdistancia [] = []
 calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
--- Distancia de todo los clusters a uno en concreto
+calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [((Cluster, Cluster), Double)]
 calculaDistanciasAUnCluster fdistancia vs [] = []
 calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
 
--- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 
-
--- Calcular el punto medio de cada cluster
+calculaMedia :: Cluster -> Vector
 calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!!0)))) 0)
 
-
+calculaMediaAux :: Cluster -> Int -> Cluster -> Vector
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
