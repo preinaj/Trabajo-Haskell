@@ -14,6 +14,8 @@ import System.IO.Unsafe
 import Debug.Trace
 import Data.Typeable
 import Data.Maybe
+import Data.List
+import Data.Char
 
 data Dataset4Clustering  = Dataset4Clustering {
     nombre :: String, 
@@ -92,7 +94,7 @@ seleccionAlgoritmo datos = do
     xs <- getLine
     if xs == "KM"
         then
-            algKMeans datos
+            algKMeansDistancia datos
         else do
             if xs == "CA"
                 then
@@ -101,41 +103,62 @@ seleccionAlgoritmo datos = do
                     putStrLn "Introduzca una opción válida"
                     seleccionAlgoritmo datos
 
-algKMeans datos = do
+algKMeansDistancia datos = do
     putChar '\n'
     putStrLn "--------------------------------------"
     putStrLn "       ALGORITMO DE K-MEDIAS"
     putStrLn "--------------------------------------"
     putChar '\n'
     distancia <- seleccionaDistancia
-    -- putStrLn (show(typeOf distancia))
     putChar '\n'
-    putStr "Indique el numero de centros para el algoritmo (entre 1 y 10): " --Revisar esta condición
+    algKMeans datos distancia
+
+algKMeans datos distancia = do
+    putStr "Indique el numero de centros para el algoritmo (menor que 10 si desea una representacion grafica): "
     x <- getLine -- Añadir comprobacion numero valido
-    let m = read x :: Int
-    putChar '\n'
-    putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM): "
-    modo <- getLine
-    if modo == "M"
-        then do
-            res <- (kMeans m datos distancia)
-            let aux = (asocXM datos res distancia)
-            putStrLn (show res)
-            representa res aux
-        else 
-            if modo == "CM"
-                then do
-                    res <- (kMeansCompleto m datos distancia)
-                    aux <- (kMeans m datos distancia) -- Sacar los datos de res, no volverlso a calcular
-                    putStrLn (show res)
-                    representa aux res
-                else do
-                    putChar '\n'
-                    putStrLn "Introduzca un modo valido"
-                    algKMeans datos
---representa :: [Vector] -> [(Vector, Vector)] -> IO ()
+    if compruebaEntero x then do
+        let m = read x :: Int
+        putChar '\n'
+        putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM): "
+        modo <- getLine
+        if modo == "M"
+            then do
+                res <- (kMeans m datos distancia)
+                let aux = (asocXM datos res distancia)
+                putStrLn (show res)
+                if m < 10 then
+                    representa res aux
+                else
+                    return ()
+            else 
+                if modo == "CM"
+                    then do
+                        res <- (kMeansCompleto m datos distancia)
+                        let aux = (obtieneCentros res)
+                        putStrLn (show res)
+                        if m < 10 then
+                            representa aux res
+                        else
+                            return ()
+
+                    else do
+                        putChar '\n'
+                        putStrLn "Introduzca un modo valido"
+                        algKMeans datos distancia
+    else do
+        putStrLn "Introduzca un numero de centros valido"
+        algKMeans datos distancia-- Quizas dividir esta funcion en varias para no llamarla de neuvo desde el principio
+                        -- si no justo antes de pedirle el numero de centros
+
+obtieneCentros :: [(Vector,Vector)] -> [Vector]
+obtieneCentros xs = nub (map (\(x,y) -> y) xs)
+
+compruebaEntero [] = True
+compruebaEntero (x:xs) = isDigit (x) && compruebaEntero xs
+
+representa :: [Vector] -> [(Vector, Vector)] -> IO ()
 representa m xm = do
-    if True -- Comprobar que tiene dos coordenadas
+    if snd (bounds (m!!0)) == 2  -- Comprobar que tiene dos coordenadas
         then do
             putStr "¿Quiere una representacion grafica de los puntos: SI (S), NO (N)? "
             x <- getLine
