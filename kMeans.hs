@@ -110,7 +110,7 @@ getNewM xms (m:ms) = [calculaMediaM xms m] ++ (getNewM xms ms)
 -- Resultado:
 -- centros :: Vector           Centro actualizada
 
--- Funciones auxiliares:
+-- Funciones relacionadas:
 -- calculaMediaMAux :: [(Vector, Vector)] -> Vector -> Int -> [Double] -> Vector   -- Funcion que itera sobre los puntos asociados a m
                                                                                    -- para calcular el nuevo centro
 
@@ -137,7 +137,7 @@ calculaMediaMAux (xm:xms) m cont acc = if (snd xm) == m then calculaMediaMAux xm
 -- Resultado:
 -- centros :: Vector           Centro actualizada
 
--- Funciones auxiliares:
+-- Funciones relacionadas:
 -- asocXMAux :: [Vector] -> [Vector] -> Distancia -> [(Vector, Vector)] -> [(Vector, Vector)]   -- Funcion que itera sobre los puntos del dataset y 
                                                                                                 -- le va asociando a cada uno su centro mas cercano
 

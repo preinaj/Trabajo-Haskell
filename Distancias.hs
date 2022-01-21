@@ -4,6 +4,7 @@ module Distancias
     distHamming,        -- Vector -> Vector -> Double
     listaVector,        -- [Double] -> Vector
     Vector,
+    Cluster,
     Distancia
 ) where
 
@@ -24,6 +25,9 @@ import Data.Array
 
 type Vector = Array Int Double                  -- Tipo para los datos del dataset. 
                                                 -- Vectores con valores reales.
+type Cluster = [Vector]                         -- Tipo para los clusters utilizado
+                                                -- en los algoritmos de clustering
+                                                -- aglomerativo
 type Distancia = Vector -> Vector -> Double     -- Tipo para las funciones de distancia 
 
 -- El tipo Distancia pasar por parametro las funciones distancias a otras
@@ -32,7 +36,7 @@ type Distancia = Vector -> Vector -> Double     -- Tipo para las funciones de di
 
 
 -------------------------------------------------------------------------------
--- Lista de funciones 
+-- Lista de funciones del modulo
 
 -- Funcion listaVector :: [Double] -> Vector
 -- Recibe por parametro una lista con los valores de cada una de las coordenadas 
