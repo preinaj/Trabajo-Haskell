@@ -184,9 +184,8 @@ eliminaCluster arbol larboles = prefijo ++ sufijo
     where   prefijo = takeWhile(/=arbol) larboles 
             sufijo = drop (length prefijo + 1) larboles
 
--- Funcion clustersDistanciaMinima :: Distancia -> [Arbol] -> ((Arbol, Arbol), Double)
--- Dada una funcion de distancia y la lista de arboles (del que se pueden extraer
--- los clusters formados), devuelve el par 
+-- Funcion clustersDistanciaMinima :: Distancia -> [Cluster] -> ((Cluster, Cluster), Double)
+-- Dada una funcion de distancia y la lista de clusters, devuelve el par 
 -- (2 clusters -vistos como subarboles- mas cercanos, distancia entre ellos)
 
 -- Para obtener la distancia entre pares de clusters (para poder calcular el minimo)
@@ -194,78 +193,76 @@ eliminaCluster arbol larboles = prefijo ++ sufijo
 
 -- Parametros:     
 -- fdistancia :: Distancia                          Tipo de distancia a usar
--- d :: Dendogram =  [Arbol]                        Lista de arboles con los clusters formados 
+-- d :: Dendogram                                   Lista de arboles con los clusters formados 
 --                                                  hasta la iteracion actual
 -- Resultado:
 -- ((c1,c2),dist) :: ((Arbol, Arbol), Double)       Los dos clusters/subarboles mas proximos
 --                                                  y la distancia entre ellos 
 
 -- Funciones relacionadas:
--- sndTuple :: ((Arbol, Arbol), Double) -> ((Arbol, Arbol), Double) -> Ordering                                  
+-- sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering                                      
 --                                          Comparador por el segundo elemento de la tupla                                                            
 
-clustersDistanciaMinima :: Distancia -> [Arbol] -> ((Arbol, Arbol), Double)
-clustersDistanciaMinima fdistancia d = head(sortBy sndTuple (calculaMatrixProximidad fdistancia d))
+clustersDistanciaMinima :: Distancia -> Dendogram -> ((Arbol, Arbol), Double)
+clustersDistanciaMinima fdistancia d = ((fromJust (arbolAsociadoACluster d c1list), fromJust(arbolAsociadoACluster d c2list)), distancia)
+    where   vss = listaClustersActuales2 d 
+            ((c1list, c2list), distancia ) = head(sortBy sndTuple (calculaMatrixProximidad fdistancia vss))
 
-sndTuple :: ((Arbol, Arbol), Double) -> ((Arbol, Arbol), Double) -> Ordering
+sndTuple :: ((Cluster, Cluster), Double) -> ((Cluster, Cluster), Double) -> Ordering
 sndTuple (x1,y1) (x2,y2)
     | y1 > y2 = GT 
     | otherwise = LT
 
 
--- Funcion calculaMatrixProximidad :: Distancia -> [Arbol] -> [((Arbol, Arbol), Double)]
--- Dada una funcion distancia y la los clusters actuales (dados a traves del bosque) 
--- obtiene una "matriz", es decir, una lista que a cadas dos clusters/arboles le asocia 
--- la distancia entre estos 
+
+
+-- Funcion calculaMatrixProximidad :: Distancia -> [Cluster] -> [((Cluster, Cluster), Double)]
+-- Dada una funcion distancia y la lista de listas de vectores obtiene una "matriz" , es decir, una lista cuyo primer de tuplas
+-- cuyo primer elemento es un par de lista de vectores (que llamaremos clusters) 
+-- y el segundo elemento es la distancia entre estos 
 
 -- Se define la distancia entre clusters como la distancia entre los puntos medios (centros)
 -- de dos clusters. 
 
 -- Parametros:     
 -- fdistancia :: Distancia                          Tipo de distancia a usar
--- vss :: [Arbol]                                   Lista de arboles de la que se puede extreaer
---                                                  los clusters formados hasta la iteracion actual
+-- vss :: [Cluster]                                 Lista de listas de vectores
 -- Resultado:
--- [((c1,c2),dist)] :: [((Arbol, Arbol), Double)] 
---                                                  "Matriz" que asocia a cada dos clusters (raiz de los
---                                                  arboles) la distancia entre ellos 
+-- [((c1,c2),dist)] :: [((Cluster, Cluster), Double)] 
+--                                                  "Matriz" que asocia a cada dos clusters
+--                                                  la distancia entre ellos 
 
 -- Funciones relacionadas:
--- calculaDistanciasAUnCluster :: Distancia -> Arbol -> [Arbol] -> [( (Arbol, Arbol), Double)]
+-- calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [((Cluster, Cluster), Double)]
 --                                                  Calcula la distancia de todos los clusters
 --                                                  a uno en concreto
 
 -- distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 --                                                  Calcula la distancia entre dos clusters
 
--- calculaMedia :: Cluster -> Vector                Calcula el punto medio de cada cluster
+-- calculaMedia :: Cluster -> Vector               Calcula el punto medio de cada cluster
 
+-- calculaMediaAux :: Cluster -> Int -> Cluster -> Vector 
+--                                                    Usa un acumulador para calcular el 
+--                                                    punto medio de un cluster
 
-
--- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
-calculaMatrixProximidad :: Distancia -> [Arbol] -> [((Arbol, Arbol), Double)]
+calculaMatrixProximidad :: Distancia -> [Cluster] -> [((Cluster, Cluster), Double)]
 calculaMatrixProximidad fdistancia [] = []
 calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
--- Distancia de todo los clusters a uno en concreto
-calculaDistanciasAUnCluster :: Distancia -> Arbol -> [Arbol] -> [( (Arbol, Arbol), Double)]
-calculaDistanciasAUnCluster fdistancia arbolH [] = []
-calculaDistanciasAUnCluster fdistancia arbolH (arbolS:xss) = distanciaHaS: avanza
-    where   (idH, clusterH) = datosClusterFromArbol arbolH
-            (idS, clusterS) = datosClusterFromArbol arbolS
-            distanciaHaS =  ((arbolH, arbolS), distanciaEntreClusters fdistancia clusterH clusterS)
-            avanza = calculaDistanciasAUnCluster fdistancia arbolH xss
+calculaDistanciasAUnCluster :: Distancia -> Cluster -> [Cluster] -> [((Cluster, Cluster), Double)]
+calculaDistanciasAUnCluster fdistancia vs [] = []
+calculaDistanciasAUnCluster fdistancia vs (xs:xss) = ((vs,xs), distanciaEntreClusters fdistancia vs xs):(calculaDistanciasAUnCluster fdistancia vs xss)
 
--- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 
-
--- Calcular el punto medio de cada cluster
+calculaMedia :: Cluster -> Vector
 calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!!0)))) 0)
 
+calculaMediaAux :: Cluster -> Int -> Cluster -> Vector
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]
 calculaMediaAux (xm:xms) cont acc = calculaMediaAux xms (cont+1) [i + j  | (i,j) <- zip (elems xm) (acc)] 
 
