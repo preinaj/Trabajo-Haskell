@@ -43,7 +43,7 @@ data Dataset4Clustering  = Dataset4Clustering {
 -------------------------------------------------------------------------------
 -- Lista de funciones del modulo
 
--- leeDataset :: IO ()
+-- main :: IO ()
 -- Funcion principal del modulo. Se encarga de pedir el nombre del dataset y su lectura,
 -- para posteriormente aplicar alguno de los algoritmos disponibles a los datos leidos
 
@@ -66,8 +66,8 @@ data Dataset4Clustering  = Dataset4Clustering {
 -- seleccionaDistancia :: IO Distancia  Se encarga de solictar la funcion distancia
 --                                      a usar en los distintos algortimos
 
-leeDataset :: IO ()
-leeDataset = do
+main :: IO ()
+main = do
     putChar '\n'
     putStrLn "--------------------------------------"
     putStrLn "       ELECCION DEL DATASET"
@@ -84,7 +84,7 @@ leeDataset = do
     else do
         putStrLn "El fichero introducido no existe. Por favor, pruebe de nuevo"
         putChar '\n'
-        leeDataset
+        main
 
 
 parseadorCSV :: String -> IO()
@@ -99,7 +99,7 @@ parseadorCSV nombreFich = do
     -- putStrLn (show filasValidas)
     if (length filasValidas < 2) then do
         putStrLn "\n Formato de fichero incorrecto"
-        leeDataset
+        main
     else do 
         -- putStrLn $ printCSV filasValidas
         let cabecera = head filasValidas
