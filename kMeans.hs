@@ -6,7 +6,11 @@ module KMeans
 
 -------------------------------------------------------------------------------
 -- Descripcion general del modulo
--- Este modulo tiene por objeto implementar el algoritmo de k-means
+-- Este modulo tiene por objeto implementar el algoritmo de k-means. 
+
+-- El algoritmo comienza con k centros aleatorios y cada punto se asocia al centro
+-- mas cercano. Cada centro se vuelve a calcular en funcion a los puntos que tiene
+-- asociado. El proceso se detiene cuando los centros no cambian de una iteracion a otra
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------

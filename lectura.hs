@@ -1,3 +1,11 @@
+-------------------------------------------------------------------------------
+-- Descripcion general del modulo
+-- Este modulo tiene por objeto la lectura de datasets (.csv) para su posterior
+-- uso en los distintos algoritmos implementados
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Modulos auxiliares importados
 import Text.CSV
 import System.Directory (doesFileExist)
 import Data.Array
@@ -16,14 +24,47 @@ import Data.Typeable
 import Data.Maybe
 import Data.List
 import Data.Char
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Definicion de tipos
 
 data Dataset4Clustering  = Dataset4Clustering {
     nombre :: String, 
     cabecera :: [String],
     datos :: [Vector]
     }
-    deriving (Show, Eq)
+    deriving (Show, Eq)                       -- Tipo dataset
+-- Este tipo es usado para el procesamiento de los datos que se leen del dataset.
+-- Se componene del nombre del dataset, la linea de la cabecera y el resto de lineas
+-- del dataset. Estas ultimas son interpretadas como listas de vectores (Array Int Double)
+-------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- Lista de funciones del modulo
+
+-- leeDataset :: IO ()
+-- Funcion principal del modulo. Se encarga de pedir el nombre del dataset y su lectura,
+-- para posteriormente aplicar alguno de los algoritmos disponibles a los datos leidos
+
+-- Resultado:
+-- resultado :: IO ()                  Imprime por pantalla el resultado del algoritmo
+
+
+-- Funciones relacionadas:
+-- parseadorCSV :: String -> IO()      Funcion auxiliar que recibe el nombre del dataset
+--                                       a leer y se ocupa de su lectura y transformacion 
+--                                       al tipo Dataset4Clustering
+
+-- fila2Array :: [String] -> Vector    Se encarga de transformas las lineas del dataset
+--                                     en el tipo Vector para su posterior uso
+
+-- seleccionAlgoritmo :: [Vector] -> IO ()
+--                                            Funcion que una vez los datos han sido procesados,
+--                                            se encarga de solicitar el algoritmo que se desea usar
+
+-- seleccionaDistancia :: IO Distancia  Se encarga de solictar la funcion distancia
+--                                      a usar en los distintos algortimos
 
 leeDataset :: IO ()
 leeDataset = do
@@ -77,13 +118,13 @@ parseadorCSV nombreFich = do
         putStrLn (show (datos dataset))
         seleccionAlgoritmo (datos dataset)
 
-
+fila2Array :: [String] -> Vector
 fila2Array fila = array (1,l) filaDouble
     where   filaDouble = [ (ind, ((read dato) :: Double)) | (ind,dato) <- zip [1..] fila]
             l = length fila
             -- filaPrueba = trace ("DEGUB: "++ show filaDouble ) (head filaDouble)
 
-
+seleccionAlgoritmo :: [Vector] -> IO ()
 seleccionAlgoritmo datos = do  
     putChar '\n'
     putStrLn "--------------------------------------"
@@ -98,11 +139,98 @@ seleccionAlgoritmo datos = do
         else do
             if xs == "CA"
                 then
-                    clustAglomerativo datos
+                    clustAglomerativoDistancia datos
                 else do
                     putStrLn "Introduzca una opción válida"
                     seleccionAlgoritmo datos
 
+seleccionaDistancia :: IO Distancia
+seleccionaDistancia = do
+    putStr "Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): "
+    distanciaStr <- getLine
+    let distancia = case distanciaStr of
+            "DE" -> Just distEuclidea
+            "DM" -> Just distManhattan
+            "DH" -> Just distHamming
+            _    -> Nothing
+    if (isNothing distancia) then do
+        putChar '\n'
+        putStrLn "Introduzca una opcion valida"
+        seleccionaDistancia
+    else do
+        return (fromJust distancia)
+
+
+-- algKMeans :: [Vector] -> Distancia -> IO ()
+-- Funcion principal del algoritmo de kMeans. Una vez recibido los datos, se encarga de 
+-- solicitar los parametros del algoritmos, comprobar su validez y
+-- de la posterior representacion de los resultados.
+
+-- Parametros:     
+-- datos :: [Vector]                   Lista de vectores (datos del dataset)
+-- distancia :: Distancia              Funcion distancia
+-- m :: Int                            Numero de centros
+-- Resultado:
+-- resultado :: IO ()                  Imprime por pantalla el resultado del algoritmo
+
+
+-- Funciones relacionadas:
+-- algKMeansDistancia :: [Vector] -> IO ()
+--                                       Funcion encargada de solicitar la funcion
+--                                       distancia que se va a usar en el algoritmo
+
+--algKMeansCentros :: [Vector] -> Distancia -> IO ()
+--                                       Funcion encargada de solicitar el numero
+--                                       de centros que se va a usar en el algoritmo
+
+-- obtieneCentros :: [(Vector,Vector)] -> [Vector]    
+--                                       Dado una lista de puntos y sus centros asociados,
+--                                       se encarga de obtener todos los centros
+
+-- compruebaEntero :: String -> Bool     Comprueba si el String recibido puede ser 
+--                                       parseado como Int
+
+-- representaKmeansCompleto :: [(Vector,Vector)] -> [Vector] -> IO ()
+--                                       Funcion usada para la representacion de los puntos asociados a cada centro
+
+--representaAsociadosAM :: [(Vector,Vector)] -> Vector -> Int -> IO ()
+--                                       Funcion que representa los puntos asociados a un centro concreto
+
+-- representa :: [Vector] -> [(Vector, Vector)] -> IO ()
+--                                       Dada una lista de vectores y otra lista de los mismos 
+--                                       vectores y sus centros asociados, realiza una representacion
+--                                       grafica de los puntos y los centros (solo valido para dimension 2)
+
+algKMeans :: [Vector] -> Distancia -> Int -> IO ()
+algKMeans datos distancia m = do
+    putChar '\n'
+    putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM): "
+    modo <- getLine
+    if modo == "M"
+        then do
+            res <- (kMeans m datos distancia)
+            let aux = (asocXM datos res distancia)
+            putStrLn (show res)
+            if m < 10 then
+                representa res aux
+            else
+                return ()
+        else 
+            if modo == "CM"
+                then do
+                    res <- (kMeansCompleto m datos distancia)
+                    let aux = (obtieneCentros res)
+                    representaKmeansCompleto res aux
+                    if m < 10 then
+                        representa aux res
+                    else
+                        return ()
+                else do
+                    putChar '\n'
+                    putStrLn "Introduzca un modo valido"
+                    algKMeans datos distancia m
+
+algKMeansDistancia :: [Vector] -> IO ()
 algKMeansDistancia datos = do
     putChar '\n'
     putStrLn "--------------------------------------"
@@ -111,50 +239,47 @@ algKMeansDistancia datos = do
     putChar '\n'
     distancia <- seleccionaDistancia
     putChar '\n'
-    algKMeans datos distancia
+    algKMeansCentros datos distancia
 
-algKMeans datos distancia = do
+algKMeansCentros :: [Vector] -> Distancia -> IO ()
+algKMeansCentros datos distancia = do
     putStr "Indique el numero de centros para el algoritmo (menor que 10 si desea una representacion grafica): "
-    x <- getLine -- Añadir comprobacion numero valido
+    x <- getLine
     if compruebaEntero x then do
         let m = read x :: Int
-        putChar '\n'
-        putStr  "Indique que datos desea extraer: unicamente los centros de los clusters (M), centros y datos asociados a cada uno (CM): "
-        modo <- getLine
-        if modo == "M"
-            then do
-                res <- (kMeans m datos distancia)
-                let aux = (asocXM datos res distancia)
-                putStrLn (show res)
-                if m < 10 then
-                    representa res aux
-                else
-                    return ()
-            else 
-                if modo == "CM"
-                    then do
-                        res <- (kMeansCompleto m datos distancia)
-                        let aux = (obtieneCentros res)
-                        putStrLn (show res)
-                        if m < 10 then
-                            representa aux res
-                        else
-                            return ()
-
-                    else do
-                        putChar '\n'
-                        putStrLn "Introduzca un modo valido"
-                        algKMeans datos distancia
+        algKMeans datos distancia m
+        
     else do
         putStrLn "Introduzca un numero de centros valido"
-        algKMeans datos distancia-- Quizas dividir esta funcion en varias para no llamarla de neuvo desde el principio
-                        -- si no justo antes de pedirle el numero de centros
+        algKMeansCentros datos distancia    
 
 obtieneCentros :: [(Vector,Vector)] -> [Vector]
 obtieneCentros xs = nub (map (\(x,y) -> y) xs)
 
+compruebaEntero :: String -> Bool
 compruebaEntero [] = True
 compruebaEntero (x:xs) = isDigit (x) && compruebaEntero xs
+
+representaKmeansCompleto :: [(Vector,Vector)] -> [Vector] -> IO ()
+representaKmeansCompleto _ [] = return ()
+representaKmeansCompleto xms (m:ms) = do
+    putChar '\n'
+    putChar '\n'
+    putStrLn ("Puntos asociados al centro " ++ show (elems m))
+    putStrLn "--------------------------------------" 
+    representaAsociadosAM xms m 1
+    representaKmeansCompleto xms ms
+
+representaAsociadosAM :: [(Vector,Vector)] -> Vector -> Int -> IO ()
+representaAsociadosAM [] _ _ = return ()
+representaAsociadosAM (x:xs) m i = do
+    if snd x == m then do
+        putStrLn (show i ++ ".-  " ++ show (elems (fst x)))
+        representaAsociadosAM xs m (i+1)
+    else
+        representaAsociadosAM xs m i
+
+
 
 representa :: [Vector] -> [(Vector, Vector)] -> IO ()
 representa m xm = do
@@ -173,15 +298,31 @@ representa m xm = do
     else 
         return ()
 
-longTupla (a,b) = True
+-- clustAglomerativo :: Cluster -> Distancia -> IO ()
+-- Funcion principal del algoritmo de cluster aglomerativo, que dado un cluster
+-- inicial (lista de vectores) y una funcion distancia ejecuta el algoritmo de 
+-- cluster aglomerativo. 
+-- El algoritmo comienza con un cluster por cada punto (vector). En las sucesivas 
+-- iteraciones del algoritmo, se toman los dos clusters mas proximos y se fusionan.
+-- El algoritmo finaliza cuando todos los vectores pertenecen al mismo cluster.
+-- Permite dos modalidaes, el cluster aglomerativo de arbol
+-- y de listas de evolucion
 
-clustAglomerativo datos = do
-    putChar '\n'
-    putStrLn "--------------------------------------"
-    putStrLn "ALGORITMO DE CLUSTERING AGLOMERATIVO"
-    putStrLn "--------------------------------------"
-    putChar '\n'
-    distancia <- seleccionaDistancia
+-- Parametros:     
+-- datos :: Cluster                    Lista de vectores (datos del dataset)
+-- distancia :: Distancia              Funcion distancia
+-- Resultado:
+-- resultado :: IO ()                  Imprime por pantalla el resultado del algoritmo
+
+
+-- Funciones relacionadas:
+-- clustAglomerativoDistancia :: Cluster -> IO ()
+--                                       Funcion encargada de solicitar la funcion
+--                                       distancia que se va a usar en el algoritmo
+
+
+clustAglomerativo :: Cluster -> Distancia -> IO ()
+clustAglomerativo datos distancia = do
     putChar '\n'
     putStr "Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): "
     xs <- getLine
@@ -196,9 +337,41 @@ clustAglomerativo datos = do
                 else do
                     putChar '\n'
                     putStrLn "Introduzca una opción válida"
-                    clustAglomerativo datos
+                    clustAglomerativo datos distancia
+
+clustAglomerativoDistancia :: Cluster -> IO ()
+clustAglomerativoDistancia datos = do
+    putChar '\n'
+    putStrLn "--------------------------------------"
+    putStrLn "ALGORITMO DE CLUSTERING AGLOMERATIVO"
+    putStrLn "--------------------------------------"
+    putChar '\n'
+    distancia <- seleccionaDistancia
+    clustAglomerativo datos distancia
 
 
+-- representaClusterAglomerativoLE :: [(Int, [Cluster], Int)] -> IO ()
+-- Funcion principal del algoritmo de cluster aglomerativo modelado
+-- mediantes listas de evolucion
+
+-- Parametros:     
+-- xs :: [(Int, [Cluster], Int)]       Lista de tuplas de tres elementos, cuyo primer
+--                                     elemento es el nivel acutal, el segundo la lista
+--                                     de cluster en este momento y el tercero indica el numero
+--                                     de clusters actuales (al final este numero sera 1)
+-- Resultado:
+-- resultado :: IO ()                  Imprime por pantalla el resultado del algoritmo
+
+
+-- Funciones relacionadas:
+-- representaUncluster :: [Cluster] -> Int -> IO ()
+--                                       Representa los clusters en un nivel en concreto
+
+-- fst' (a,_,_) = a                    Funciones usadas para extraer los elementos 
+-- snd' (_,a,_) = a                    de tuplas de tres elementos
+-- thr' (_,_,a) = a
+
+representaClusterAglomerativoLE :: [(Int, [Cluster], Int)] -> IO ()
 representaClusterAglomerativoLE [] = return ()
 representaClusterAglomerativoLE (x:xs) = do
     let nivel = fst' x
@@ -210,20 +383,47 @@ representaClusterAglomerativoLE (x:xs) = do
     representaUncluster ls 1
     representaClusterAglomerativoLE xs
 
+representaUncluster :: [Cluster] -> Int -> IO ()
 representaUncluster [] _ = return ()
 representaUncluster (x:xs) i = do
-    putStrLn ("Cluster numero " ++ show i ++ ": " ++ show x)
+    putStrLn ("Cluster numero " ++ show i ++ ": " ++ show x) -- Mstar mejos los elems solo??
     representaUncluster xs (i+1)
 
 fst' (a,_,_) = a 
 snd' (_,a,_) = a
 thr' (_,_,a) = a
 
+-- clustAglomerativoArbol :: Distancia -> Cluster -> IO ()
+-- Funcion principal del algoritmo de cluster aglomerativo modelado
+-- mediante un dendograma
+
+
+-- Parametros:     
+-- fdistancia :: Distancia      Funcion Distancia
+-- datos :: Cluster             Lista de vectores (datos del dataset)
+-- Resultado:
+-- resultado :: IO ()                  Imprime por pantalla el resultado del algoritmo
+
+
+-- Funciones relacionadas:
+-- representaArbol :: Arbol -> String -> Tree String
+--                                              Representa los resultados en forma de arbol
+--                                              haciendo uso de la libreria Data.Tree
+
+-- toDataTreeId :: Arbol -> Tree String         Transforma nuestra estructura de datos 
+--                                              a una del tipo Data.Tree para 
+--                                              poder representarla mejor
+
+-- toDataTreeCl :: Arbol -> Tree String         Transforma nuestra estructura de datos 
+--                                              a una del tipo Data.Tree para 
+--                                              poder representarla mejor
+
+clustAglomerativoArbol :: Distancia -> Cluster -> IO ()
 clustAglomerativoArbol fdistancia datos = do
     putChar '\n'
     putStr "Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): "
     modo <- getLine
-    let d = inicializaClusteringAglomerativoA datos --Aqui tendrían que venir los datos de verdad
+    let d = inicializaClusteringAglomerativoA datos 
     if modo == "AC" || modo == "AI"
         then do
             let res = clusteringAglomerativoA fdistancia d
@@ -237,31 +437,18 @@ clustAglomerativoArbol fdistancia datos = do
                     putStrLn "Introduzca una opción válida"
                     clustAglomerativoArbol fdistancia datos
 
--- Usando las estructuras inferiores, representa por linea de comandos una estructura de arbol
+representaArbol :: Arbol -> String -> Tree String
 representaArbol res modo
     | modo == "AI" = toDataTreeId res
     | modo == "AC" = toDataTreeCl res
     | otherwise = error "Modo no valido"
 
--- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeId :: Arbol -> Tree String
 toDataTreeId (H id cl) = Node (show (id)) []
 toDataTreeId (N id cl n1 n2 ) = Node (show (id)) [toDataTreeId n1, toDataTreeId n2]
 
--- Transforma nuestra estructura de datos a una del tipo Data.Tree para poder representarla mejor
+toDataTreeCl :: Arbol -> Tree String
 toDataTreeCl (H id cl) = Node (show (cl)) []
 toDataTreeCl (N id cl n1 n2 ) = Node (show (cl)) [toDataTreeCl n1, toDataTreeCl n2]
 
-seleccionaDistancia = do
-    putStr "Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): "
-    distanciaStr <- getLine
-    let distancia = case distanciaStr of
-            "DE" -> Just distEuclidea
-            "DM" -> Just distManhattan
-            "DH" -> Just distHamming
-            _    -> Nothing
-    if (isNothing distancia) then do
-        putChar '\n'
-        putStrLn "Introduzca una opcion valida"
-        seleccionaDistancia
-    else do
-        return (fromJust distancia)
+
