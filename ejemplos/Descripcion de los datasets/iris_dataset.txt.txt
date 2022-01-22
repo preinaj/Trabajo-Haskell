@@ -1,0 +1,9 @@
+Context
+This data contains four features petal width and length and sepal length and width. This data is used for Unsupervised Learning
+
+Content
+The Iris flower dataset is one of the most popular ones for machine learning. You can read a lot about it online and have probably 
+already heard of it: https://en.wikipedia.org/wiki/Iris_flower_data_set. 
+There are 4 features: sepal length, sepal width, petal length, and petal width. 
+This dataset is used for Unsupervised learning. 
+KMeans Clustering is used to find the number of clusters based on all the given features using the elbow method
