@@ -14,7 +14,7 @@ listaColores = [red, green, blue, pink, purple, yellow, orange, brown, gray]
 -- Recibe una lista de clusters, lista de puntos asociadas a clusters y lista de colores. Pinta cada punto de un color asociado al cluster.
 -- De maximo tantos clusters como la longitud de la lista de colores
 --main :: IO ()
-dibuja m xm = drawingOf (representaCentros asociados & (representasClusers xm asociados))
+dibuja m xm = drawingOf (representaCentros asociados & (representasClusters xm asociados))
   where asociados = asociaColorACluster m listaColores
 
 representaCentros [] = blank
@@ -24,9 +24,9 @@ dibujaCentro (xs,c) = translated x y (colored black (solidRectangle 0.01 0.01))
   where x = xs !! 0
         y = xs !! 1 
 
-representasClusers :: [(Representacion2D.Vector,Representacion2D.Vector)] -> [([Double], Color)] -> Picture
-representasClusers [] _ = blank
-representasClusers (x:xs) ls = dibujaPunto x ls & representasClusers xs ls
+representasClusters :: [(Representacion2D.Vector,Representacion2D.Vector)] -> [([Double], Color)] -> Picture
+representasClusters [] _ = blank
+representasClusters (x:xs) ls = dibujaPunto x ls & representasClusters xs ls
 
 dibujaPunto (a,b) ls = translated x1 x2 (colored (buscaColor y ls)  (solidCircle 0.01))
   where x = elems a
