@@ -381,9 +381,14 @@ representaUncluster (x:xs) i = do
     putStrLn ("Cluster numero " ++ show i ++ ": " ++ show (map elems x))
     representaUncluster xs (i+1)
 
-fst' (a,_,_) = a 
-snd' (_,a,_) = a
-thr' (_,_,a) = a
+fst' :: (a, b, c) -> a
+fst' (e,_,_) = e
+
+snd' :: (a, b, c) -> b
+snd' (_,e,_) = e
+
+thr' :: (a, b, c) -> c
+thr' (_,_,e) = e
 
 -- clustAglomerativoArbol :: Distancia -> Cluster -> IO ()
 -- Funcion principal del algoritmo de cluster aglomerativo modelado
