@@ -6,24 +6,25 @@
 
 -------------------------------------------------------------------------------
 -- Modulos auxiliares importados
-import Text.CSV
-import System.Directory (doesFileExist)
-import Data.Array
-
-import ClusterAglomerativoListaEvolucion
-import Representacion2D
-import Distancias
-import ClusterAglomerativoArbol
-import KMeans
-import Data.Array
-import Data.Tree
-import Data.IORef
-import System.IO.Unsafe
-import Debug.Trace
-import Data.Typeable
+-- Librerias basicas
 import Data.Maybe
 import Data.List
 import Data.Char
+import Data.Array
+-- Modulos para clustering y representacion
+import Distancias
+import KMeans
+import Representacion2D
+import ClusterAglomerativoListaEvolucion
+import ClusterAglomerativoArbol
+import Data.Tree
+-- Modulos para presentacion de datos y parseo
+import System.IO
+import Text.CSV
+import System.Directory (doesFileExist)
+-- Modulos para debugging
+import Debug.Trace
+import Data.Typeable
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
@@ -68,6 +69,7 @@ data Dataset4Clustering  = Dataset4Clustering {
 
 main :: IO ()
 main = do
+    hSetBuffering stdout NoBuffering
     putChar '\n'
     putStrLn "--------------------------------------"
     putStrLn "       ELECCION DEL DATASET"
