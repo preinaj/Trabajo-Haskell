@@ -21,9 +21,7 @@ module ClusterAglomerativoArbol
 -- Modulos auxiliares importados
 import Data.Array
 import Data.List
-import System.Random
 import Data.Maybe
-import Data.Tree
 import Distancias
 ---------------------------------
 
@@ -242,12 +240,12 @@ sndTuple (x1,y1) (x2,y2)
 
 
 
--- Obtiene una matriz simetrica que devuelve la distancia entre dos vectores cualesquiera optimo (simetrica)
+-- Obtiene una matriz simetrica que devuelve la distancia entre dos clusters cualesquiera optimo (simetrica)
 calculaMatrixProximidad :: Distancia -> [Arbol] -> [((Arbol, Arbol), Double)]
 calculaMatrixProximidad fdistancia [] = []
 calculaMatrixProximidad fdistancia (vs:vss) = calculaDistanciasAUnCluster fdistancia vs vss ++ (calculaMatrixProximidad fdistancia vss)
 
--- Distancia de todo los clusters a uno en concreto
+-- Distancia de todos los clusters a uno en concreto
 calculaDistanciasAUnCluster :: Distancia -> Arbol -> [Arbol] -> [( (Arbol, Arbol), Double)]
 calculaDistanciasAUnCluster fdistancia arbolH [] = []
 calculaDistanciasAUnCluster fdistancia arbolH (arbolS:xss) = distanciaHaS: avanza
@@ -256,14 +254,15 @@ calculaDistanciasAUnCluster fdistancia arbolH (arbolS:xss) = distanciaHaS: avanz
             distanciaHaS =  ((arbolH, arbolS), distanciaEntreClusters fdistancia clusterH clusterS)
             avanza = calculaDistanciasAUnCluster fdistancia arbolH xss
 
--- Distancia entre dos clusters cualesquiera
-distanciaEntreClusters :: Distancia -> [Vector] -> [Vector] -> Double
+-- Distancia entre dos clusters 
+distanciaEntreClusters :: Distancia -> Cluster -> Cluster -> Double
 distanciaEntreClusters fdistancia v1 v2 = fdistancia vm1 vm2
     where vm1 = calculaMedia v1
           vm2 = calculaMedia v2
 
 
--- Calcular el punto medio de cada cluster
+-- Calcular el punto medio (centro) de cada cluster
+calculaMedia :: Cluster -> Vector
 calculaMedia v = calculaMediaAux v 0 (replicate (fromIntegral (length (elems (v!!0)))) 0)
 
 calculaMediaAux [] cont acc = listaVector [(acc!!(i-1)) / (fromIntegral(cont)) | i <- [1..(length acc)]]

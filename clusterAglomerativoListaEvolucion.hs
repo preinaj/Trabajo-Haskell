@@ -20,9 +20,7 @@ module ClusterAglomerativoListaEvolucion(
 import Data.Array
 import Data.Matrix
 import Data.List
-import System.Random
 import Distancias
-import Debug.Trace
 -------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
