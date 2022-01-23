@@ -94,17 +94,13 @@ parseadorCSV nombreFich = do
     let filas = case csv of
             (Right lineas) -> lineas
             _ -> []
-    -- putStrLn (show filas)
     let filasValidas = filter (\x -> length x > 1) filas
-    -- putStrLn (show filasValidas)
     if (length filasValidas < 2) then do
         putStrLn "\n Formato de fichero incorrecto"
         main
     else do 
-        -- putStrLn $ printCSV filasValidas
         let cabecera = head filasValidas
         let contenido = tail filasValidas
-        -- Tam dataSet
         let nc = length (head contenido)
         let nf = length contenido
         let dataset = Dataset4Clustering {
@@ -112,9 +108,6 @@ parseadorCSV nombreFich = do
             cabecera = cabecera,
             datos = [ fila2Array fila | fila <- contenido ]
         }
-        -- putStrLn (show [fila2Array fila | fila <- contenido] )
-        -- aqui habria que llamar al main o a lo que use los datos para empezar el algoritmo
-        -- putStrLn (show dataset)
         putStrLn (show (datos dataset))
         seleccionAlgoritmo (datos dataset)
 
@@ -122,7 +115,6 @@ fila2Array :: [String] -> Vector
 fila2Array fila = array (1,l) filaDouble
     where   filaDouble = [ (ind, ((read dato) :: Double)) | (ind,dato) <- zip [1..] fila]
             l = length fila
-            -- filaPrueba = trace ("DEGUB: "++ show filaDouble ) (head filaDouble)
 
 seleccionAlgoritmo :: [Vector] -> IO ()
 seleccionAlgoritmo datos = do  
@@ -283,7 +275,7 @@ representaAsociadosAM (x:xs) m i = do
 
 representa :: [Vector] -> [(Vector, Vector)] -> IO ()
 representa m xm = do
-    if snd (bounds (m!!0)) == 2  -- Comprobar que tiene dos coordenadas
+    if snd (bounds (m!!0)) == 2
         then do
             putStr "¿Quiere una representacion grafica de los puntos: SI (S), NO (N)? "
             x <- getLine
@@ -386,7 +378,7 @@ representaClusterAglomerativoLE (x:xs) = do
 representaUncluster :: [Cluster] -> Int -> IO ()
 representaUncluster [] _ = return ()
 representaUncluster (x:xs) i = do
-    putStrLn ("Cluster numero " ++ show i ++ ": " ++ show x) -- Mstar mejos los elems solo??
+    putStrLn ("Cluster numero " ++ show i ++ ": " ++ show (map elems x))
     representaUncluster xs (i+1)
 
 fst' (a,_,_) = a 

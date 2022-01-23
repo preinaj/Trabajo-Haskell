@@ -3,42 +3,78 @@ module Representacion2D(
 ) where
 
 
-import CodeWorld
+import CodeWorld hiding (Vector)
 import Data.Array
+import Distancias
 
-type Vector = Array Int Double
+-- dibuja :: [Vector] -> [(Vector, Vector)] -> IO ()
+-- Recibe una lista de clusters, lista de puntos asociadas a clusters y lista de colores. 
+-- Pinta cada punto de un color asociado al cluster.
+-- De maximo tantos clusters como la longitud de la lista de colores (9)
+
+-- Parametros:     
+-- m :: [Vector]                  Lista de puntos
+-- xm :: [(Vector, Vector)]       Lista de pares, en el que el
+--                                primer elemento es un punto
+--                                y el segundo su centro asociado
+-- Resultado:
+-- dibujo :: IO ()                Representación gráfica de los puntos
+
+-- Funciones relacionadas:
+-- representaCentros :: [([Double], Color)] -> Picture
+--                                  Representa los centros de los clusters
+
+--dibujaCentro :: ([Double], Color) -> Picture
+--                                  Representa un centro en concreto
+
+-- representasClusters :: [(Vector, Vector)] -> [([Double], Color)] -> Picture
+--                                  Representa los puntos asociados a un cluster
+
+-- dibujaPunto :: (Vector, Vector) -> [([Double], Color)] -> Picture
+--                                  Representa un punto en concreto
+
+-- asociaColorACluster :: [Vector] -> [Color] -> [([Double], Color)]
+--                                  Asocia un color a los puntos de un cluster
+
+--  buscaColor :: [Double] -> [([Double], Color)] -> Color
+--                                  Dado un punto, obtiene su color asociado
+
+-- listaColores :: [Color]
+--                                  Lista de colores (tipo Color de CodeWorld)
 
 
-listaColores = [red, green, blue, pink, purple, yellow, orange, brown, gray]
-
--- Recibe una lista de clusters, lista de puntos asociadas a clusters y lista de colores. Pinta cada punto de un color asociado al cluster.
--- De maximo tantos clusters como la longitud de la lista de colores
---main :: IO ()
+dibuja :: [Vector] -> [(Vector, Vector)] -> IO ()
 dibuja m xm = drawingOf (representaCentros asociados & (representasClusters xm asociados))
   where asociados = asociaColorACluster m listaColores
 
+representaCentros :: [([Double], Color)] -> Picture
 representaCentros [] = blank
 representaCentros (x:xs) = dibujaCentro x & representaCentros xs
 
+dibujaCentro :: ([Double], Color) -> Picture
 dibujaCentro (xs,c) = translated x y (colored black (solidRectangle 0.01 0.01))
   where x = xs !! 0
         y = xs !! 1 
 
-representasClusters :: [(Representacion2D.Vector,Representacion2D.Vector)] -> [([Double], Color)] -> Picture
+representasClusters :: [(Vector, Vector)] -> [([Double], Color)] -> Picture
 representasClusters [] _ = blank
 representasClusters (x:xs) ls = dibujaPunto x ls & representasClusters xs ls
 
+dibujaPunto :: (Vector, Vector) -> [([Double], Color)] -> Picture
 dibujaPunto (a,b) ls = translated x1 x2 (colored (buscaColor y ls)  (solidCircle 0.01))
   where x = elems a
         y = elems b
         [x1,x2] = x
 
+asociaColorACluster :: [Vector] -> [Color] -> [([Double], Color)]
 asociaColorACluster [] _ = []
 asociaColorACluster (x:xs) lc = [(elems x,head lc)] ++ asociaColorACluster xs (tail lc)
 
+buscaColor :: [Double] -> [([Double], Color)] -> Color
 buscaColor x [] = error "Lista vacia"
 buscaColor x xs@(y:ys) 
   | x == fst(y) = snd(y)
   | otherwise = buscaColor x ys
 
-m = [array (1,2) [(1,0.43773985165814205),(2,0.31522081252276424)],array (1,2) [(1,0.13360000000000002),(2,0.3464)],array (1,2) [(1,9.823529411764707e-2),(2,9.176470588235294e-2)],array (1,2) [(1,115.0),(2,0.35)]]
+listaColores :: [Color]
+listaColores = [red, green, blue, pink, purple, yellow, orange, brown, gray]
