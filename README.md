@@ -10,7 +10,7 @@ Para lanzar el proyecto contamos con dos opciones.
 ### Utilizando el intérprete de Haskell  
 Esta es la opción más recomendada. Debemos seguir los siguientes pasos:  
 1. Abrir el fichero main.hs  
-2. Load GHCi desde un terminal en Visual Studio (ghci “ruta del archivo”)  
+2. Load GHCi desde un terminal en Visual Studio (ghci “ruta del archivo” o Ctrl+Alt+L)  
 3. Desde el terminal escribimos main y el programa comenzará a ejecutarse
   
   
@@ -74,7 +74,7 @@ ___
 
 ## **Librerias**
 
-Instalacion de librerias no basicas utilizadas:
+Instalación de librerías no básicas utilizadas:
 
 ~~~
 cabal install matrix array csv  
