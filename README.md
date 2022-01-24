@@ -35,6 +35,23 @@ Debemos seguir los siguientes pasos:
 
 Ejemplos recomendados:  
 
+* Ejemplo de testeo de clustering aglomerativo (modelo árbol)  
+~~~
+Introduce el nombre del fichero: ejemplos/user_knowledge.csv   
+Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): CA
+Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): DE
+Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): A
+Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): AI
+~~~  
+
+* Ejemplo de testeo de clustering aglomerativo (modelo lista de evolución)  
+~~~
+Introduce el nombre del fichero: ejemplos/iris_dataset.csv   
+Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): CA
+Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): DE
+Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): LE
+~~~ 
+
 * Ejemplo de testeo de k-means  
 ~~~
 Introduce el nombre del fichero: ejemplos/wine_clustering.csv
@@ -54,22 +71,7 @@ Indique que datos desea extraer: unicamente los centros de los clusters (M), cen
 ¿Quiere una representacion grafica de los puntos: SI (S), NO (N)? S (abrir link)
 ~~~ 
 
-* Ejemplo de testeo de clustering aglomerativo (modelo árbol)  
-~~~
-Introduce el nombre del fichero: ejemplos/user_knowledge.csv   
-Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): CA
-Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): DE
-Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): A
-Seleccione la forma de representacion por pantalla: arbol de id (AI), arbol de clusters (AC), normal (N): AI
-~~~  
-
-* Ejemplo de testeo de clustering aglomerativo (modelo lista de evolución)  
-~~~
-Introduce el nombre del fichero: ejemplos/iris_dataset.csv   
-Seleccione el algoritmo a usar: kMeans (KM), clusterAglomerativo (CA): CA
-Indique el tipo de distancia a utilizar: Euclidea (DE), Manhattan (DM) o Hamming (DH): DE
-Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): LE
-~~~ 
+*Observación: Debido a la gran cantidad de datos con los que trabajamos, es posible que, a veces, aparezca un error similar al siguiente: "Exception in blank-canvas application: thread blocked indefinitely in an STM transaction". En ese caso, basta pulsar enter y sigue la ejecución del programa.*  
 ___  
 
 ## **Librerías**
