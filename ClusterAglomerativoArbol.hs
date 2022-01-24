@@ -14,7 +14,7 @@ module ClusterAglomerativoArbol
 -------------------------------------------------------------------------------
 -- Descripcion general del modulo
 -- Este modulo tiene por objeto implementar el algoritmo de clustering aglomerativo
--- modelandolo mediante un dendograma.
+-- modelandolo mediante un dendrograma.
 
 -- El algoritmo comienza con un cluster por cada punto (vector). En las sucesivas 
 -- iteraciones del algoritmo, se toman los dos clusters mas proximos y se fusionan.
@@ -39,7 +39,7 @@ type IdCluster = [Int]                  -- Tipo para identificar a un cluster en
 -- IdCluster = lista de indices de los clusters de nivel inferior contenidos en ese cluster
 -- Como inicialmente los clusters son los puntos, el identificador tambien indica los vectores 
 -- que agrupa ese cluster.
--- Permite que se pueda visualizar de manera correcta la formacion del dendograma (visualizar
+-- Permite que se pueda visualizar de manera correcta la formacion del dendrograma (visualizar
 -- todos los vectores en cada nivel haria ilegible el arbol)
 
 data Arbol = H IdCluster Cluster | N IdCluster Cluster Arbol Arbol  
@@ -50,7 +50,7 @@ instance Show Arbol where
     show (H id cluster)= "(H " ++ (show id) ++ ")" 
     show (N id cluster denizq dender) = "(N "++ (show id) ++ " "++ show (denizq) ++ " "++ show (dender) ++ ")"
 
-type Dendogram = [ Arbol ]              -- Tipo "bosque"
+type Dendrogram = [ Arbol ]              -- Tipo "bosque"
 -- Inicialmente, todos los vectores forman un cluster por si mismos (al principio solo hay hojas sin emparejar).
 -- Conforme se van fusionando los clusters se van formando arboles en paralelo (bosque).
 -- Hasta el final no se obtiene un único arbol como tal.
@@ -59,35 +59,35 @@ type Dendogram = [ Arbol ]              -- Tipo "bosque"
 -------------------------------------------------------------------------------
 -- Lista de funciones "herramienta" del modulo
 
--- Funcion listaClustersActuales :: Dendogram -> [(IdCluster, Cluster)]
---         listaClustersActuales2 :: Dendogram -> [Cluster]
+-- Funcion listaClustersActuales :: Dendrogram -> [(IdCluster, Cluster)]
+--         listaClustersActuales2 :: Dendrogram -> [Cluster]
 -- Dado un dendrograma obtiene el ultimo estado de los clusters. Tomar el ultimo estado es, 
--- en definitiva, tomar las raices de todos los arboles del dendograma. 
+-- en definitiva, tomar las raices de todos los arboles del dendrograma. 
 
 -- Parametros:
--- dendograma :: Dendogram                  Bosque de dependencia entre clusters
+-- dendrograma :: Dendrogram                  Bosque de dependencia entre clusters
 -- Resultado:
 -- [(IdCluster, Cluster)]  / [Cluster]      Lista de clusters formados 
 
-listaClustersActuales :: Dendogram -> [(IdCluster, Cluster)]
+listaClustersActuales :: Dendrogram -> [(IdCluster, Cluster)]
 listaClustersActuales [] = []
 listaClustersActuales (arbol: xs) = obtenCluster arbol : listaClustersActuales xs
     where  obtenCluster (N id cluster izq der) = (id, cluster)
            obtenCluster (H id cluster) = (id, cluster)
 
-listaClustersActuales2 :: Dendogram -> [Cluster]
+listaClustersActuales2 :: Dendrogram -> [Cluster]
 listaClustersActuales2 [] = []
 listaClustersActuales2 (arbol: xs) = obtenCluster arbol : listaClustersActuales2 xs
     where  obtenCluster (N id cluster izq der) = cluster
            obtenCluster (H id cluster) = cluster
 
 
--- Funcion arbolAsociadoACluster :: Dendogram -> Cluster -> Maybe Arbol
--- Funcion que dado un cluster = [Vector] devuelve el arbol del dendograma asociado a 
+-- Funcion arbolAsociadoACluster :: Dendrogram -> Cluster -> Maybe Arbol
+-- Funcion que dado un cluster = [Vector] devuelve el arbol del dendrograma asociado a 
 -- ese cluster (arbol que tiene como raiz ese cluster)
 
 -- Parametros:
--- dendogram :: Dendogram               Bosque de dependencia entre clusters
+-- Dendrogram :: Dendrogram               Bosque de dependencia entre clusters
 -- cluster :: cluster                   Cluster 
 -- Resultado:
 -- arbol :: Maybe Arbol                 Arbol asociado a ese cluster
@@ -97,7 +97,7 @@ listaClustersActuales2 (arbol: xs) = obtenCluster arbol : listaClustersActuales2
 --                                      Funcion que dado un arbol devuelve su cluster asociado 
 --                                      (Identificador de la raiz, cluster raiz) 
 
-arbolAsociadoACluster :: Dendogram -> Cluster -> Maybe Arbol
+arbolAsociadoACluster :: Dendrogram -> Cluster -> Maybe Arbol
 arbolAsociadoACluster [] cluster = Nothing
 arbolAsociadoACluster (arbol: xs) cluster = if (clusterArbol == cluster) 
                                                 then Just arbol 
@@ -114,7 +114,7 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 -------------------------------------------------------------------------------
 -- Lista de funciones "del algoritmo" del modulo
 
--- Funcion inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
+-- Funcion inicializaClusteringAglomerativoA :: [Vector] -> Dendrogram
 -- Obtiene el primer nivel a partir de los datos: todos los elementos forman
 -- un cluster por si mismos (al principio solo hay hojas sin emparejar).
 -- El objetivo es utilizarla como inicializacion del algoritmo de clustering 
@@ -123,20 +123,20 @@ datosClusterFromArbol (H idCluster cluster) = (idCluster, cluster)
 -- Parametros:
 -- puntosIniciales :: [Vector]              Lista de vectores del dataset
 -- Resultado:
--- dendograma :: Dendogram                  Bosque de hojas (tantas hojas como
+-- dendrograma :: Dendrogram                  Bosque de hojas (tantas hojas como
 --                                          puntos).
 
-inicializaClusteringAglomerativoA :: [Vector] -> Dendogram
+inicializaClusteringAglomerativoA :: [Vector] -> Dendrogram
 inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (indice, punto) <- zip [0..] puntosIniciales ]
 
 
--- Funcion clusteringAglomerativoA :: Distancia -> Dendogram -> Arbol
+-- Funcion clusteringAglomerativoA :: Distancia -> Dendrogram -> Arbol
 -- Es la funcion base del algoritmo de clustering: obtiene un arbol que 
 -- refleja como se han ido fusionando los clusters.
--- Recibe una funcion distancia y va actualizando el dendograma, aplicando 
+-- Recibe una funcion distancia y va actualizando el dendrograma, aplicando 
 -- recursivamente iteraciones del algoritmo de clustering hasta que 
 -- todos los clusters (subarboles) se unifiquen en uno solo 
--- (cuando el dendograma contenga un unico arbol).
+-- (cuando el dendrograma contenga un unico arbol).
 
 -- Cuando se utilice esta funcion sera inicializada con el resultado de
 -- inicializaClusteringAglomerativoA. Para aplicar una iteracion del algoritmo
@@ -144,19 +144,19 @@ inicializaClusteringAglomerativoA puntosIniciales = [ (H [indice] [punto] ) | (i
 
 -- Parametros:     
 -- fdistancia :: Distancia                  Tipo de distancia a usar
--- dendogram :: Dendogram                   Bosque de dependencia entre clusters
+-- Dendrogram :: Dendrogram                   Bosque de dependencia entre clusters
 -- Resultado:
 -- arbol :: Arbol                           Arbol de dependencia entre clusters
 
-clusteringAglomerativoA :: Distancia -> Dendogram -> Arbol
-clusteringAglomerativoA fdistancia dendogram 
-    | condParada        = head $ dendogram
-    | otherwise         = clusteringAglomerativoA fdistancia (calculaSiguienteNivel fdistancia dendogram)
-    where   condParada = length dendogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
+clusteringAglomerativoA :: Distancia -> Dendrogram -> Arbol
+clusteringAglomerativoA fdistancia dendrogram 
+    | condParada        = head $ dendrogram
+    | otherwise         = clusteringAglomerativoA fdistancia (calculaSiguienteNivel fdistancia dendrogram)
+    where   condParada = length dendrogram == 1 -- Ya solo tenemos un arbol, hemos terminado de agrupar
 
 
--- Funcion calculaSiguienteNivel :: Distancia -> Dendogram -> Dendogram
--- Dado el dendograma, extrae el ultimo estado de los clusters, fusiona los 
+-- Funcion calculaSiguienteNivel :: Distancia -> Dendrogram -> Dendrogram
+-- Dado el dendrograma, extrae el ultimo estado de los clusters, fusiona los 
 -- dos clusters mas cercanos y devuelve el siguiente nivel.
 
 -- Para encontrar los clusters mas proximos llama a la funcion 
@@ -164,26 +164,26 @@ clusteringAglomerativoA fdistancia dendogram
 
 -- Parametros:     
 -- fdistancia :: Distancia                  Tipo de distancia a usar
--- dendograma :: Dendogram                  Lista de arboles con los clusters formados 
+-- dendrograma :: Dendrogram                  Lista de arboles con los clusters formados 
 --                                          hasta la iteracion actual
 -- Resultado:
--- siguienteNivel :: Dendogram              Nuevo dendograma obtenido
+-- siguienteNivel :: Dendrogram              Nuevo dendrograma obtenido
 
 -- Funciones relacionadas:
 -- eliminaCluster :: Cluster -> [Cluster] -> [Cluster]      Tras fusionar dos arboles (clusters), se 
---                                                          elimina su aparicion por separado en el dendograma.
+--                                                          elimina su aparicion por separado en el dendrograma.
 
-calculaSiguienteNivel :: Distancia -> Dendogram -> Dendogram
-calculaSiguienteNivel fdistancia dendogram = newDendogram
-    where   clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima fdistancia dendogram
+calculaSiguienteNivel :: Distancia -> Dendrogram -> Dendrogram
+calculaSiguienteNivel fdistancia dendrogram = newDendrogram
+    where   clustersMasCercanos@(c1,c2) = fst $ clustersDistanciaMinima fdistancia dendrogram
             (c1Id, c1list) = datosClusterFromArbol c1
             (c2Id, c2list) = datosClusterFromArbol c2
             newClusterId = c1Id ++ c2Id
             newClusterList = c1list ++ c2list
             fusionClustersMasCercanos = (N newClusterId newClusterList c1 c2)
-            newDendogram = fusionClustersMasCercanos : (eliminaCluster c2 (eliminaCluster c1 dendogram))
+            newDendrogram = fusionClustersMasCercanos : (eliminaCluster c2 (eliminaCluster c1 dendrogram))
         
-eliminaCluster :: Arbol -> Dendogram -> Dendogram
+eliminaCluster :: Arbol -> Dendrogram -> Dendrogram
 eliminaCluster arbol larboles = prefijo ++ sufijo
     where   prefijo = takeWhile(/=arbol) larboles 
             sufijo = drop (length prefijo + 1) larboles
@@ -198,7 +198,7 @@ eliminaCluster arbol larboles = prefijo ++ sufijo
 
 -- Parametros:     
 -- fdistancia :: Distancia                          Tipo de distancia a usar
--- d :: Dendogram =  [Arbol]                        Lista de arboles con los clusters formados 
+-- d :: Dendrogram =  [Arbol]                        Lista de arboles con los clusters formados 
 --                                                  hasta la iteracion actual
 -- Resultado:
 -- ((c1,c2),dist) :: ((Arbol, Arbol), Double)       Los dos clusters/subarboles mas proximos

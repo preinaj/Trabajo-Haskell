@@ -400,7 +400,7 @@ thr' (_,_,e) = e
 
 -- clustAglomerativoArbol :: Distancia -> Cluster -> IO ()
 -- Funcion principal del algoritmo de cluster aglomerativo modelado
--- mediante un dendograma
+-- mediante un dendrograma
 
 
 -- Parametros:     
