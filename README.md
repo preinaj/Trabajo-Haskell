@@ -72,7 +72,7 @@ Seleccion el tipo de estructura de datos: listaEvolucion (LE), Arbol (A): LE
 ~~~ 
 ___  
 
-## **Librerias**
+## **Librerías**
 
 Instalación de librerías no básicas utilizadas:
 
