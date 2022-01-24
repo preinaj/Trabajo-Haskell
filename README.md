@@ -77,6 +77,6 @@ ___
 Instalación de librerías no básicas utilizadas:
 
 ~~~
-cabal install matrix array csv  
+cabal install matrix array csv random
 cabal install codeworld-api (puede ser necesario añadir --force-reinstalls)
 ~~~
