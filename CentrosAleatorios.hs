@@ -1,3 +1,9 @@
+-------------------------------------------------------------------------------
+-- Autores: 
+-- 	Pablo Reina Jimenez.            Datos de contacto: pabreijim1, pabreijim1@alum.us.es  
+-- 	Maria Lourdes Linares Barrera.  Datos de contacto: marlinbar, marlinbar@alum.us.es 
+-------------------------------------------------------------------------------
+
 module CentrosAleatorios 
     (generaCentros
     ) where 

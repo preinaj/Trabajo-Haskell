@@ -1,11 +1,28 @@
+-------------------------------------------------------------------------------
+-- Autores: 
+-- 	Pablo Reina Jimenez.            Datos de contacto: pabreijim1, pabreijim1@alum.us.es  
+-- 	Maria Lourdes Linares Barrera.  Datos de contacto: marlinbar, marlinbar@alum.us.es 
+-------------------------------------------------------------------------------
+
 module Representacion2D(
   dibuja
 ) where
 
+-------------------------------------------------------------------------------
+-- Descripcion general del modulo
+-- Este modulo implementa la representacion grafica para el algoritmo
+-- de Kmeans para datasets 2-dimensionales
+-------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- Modulos auxiliares importados
 import CodeWorld hiding (Vector)
 import Data.Array
 import Distancias
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
+-- Lista de funciones del modulo
 
 -- dibuja :: [Vector] -> [(Vector, Vector)] -> IO ()
 -- Recibe una lista de clusters, lista de puntos asociadas a clusters y lista de colores. 

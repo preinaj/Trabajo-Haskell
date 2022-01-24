@@ -1,4 +1,10 @@
 -------------------------------------------------------------------------------
+-- Autores: 
+-- 	Pablo Reina Jimenez.            Datos de contacto: pabreijim1, pabreijim1@alum.us.es  
+-- 	Maria Lourdes Linares Barrera.  Datos de contacto: marlinbar, marlinbar@alum.us.es 
+-------------------------------------------------------------------------------
+
+-------------------------------------------------------------------------------
 -- Descripcion general del modulo
 -- Este modulo tiene por objeto la lectura de datasets (.csv) para su posterior
 -- uso en los distintos algoritmos implementados
