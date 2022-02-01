@@ -110,7 +110,7 @@ getNewM xms (m:ms) = [calculaMediaM xms m] ++ (getNewM xms ms)
 
 -- Funcion calculaMediaM :: [(Vector, Vector)] -> Vector -> Vector
 -- Recibe por parametros una lista de tuplas que asocia a cada vector
--- del dataset un centro y un centros y retorna dicho centro actualizado
+-- del dataset un centro y un centro concreto y retorna dicho centro actualizado
 -- El objetivo es calcular un nuevo centro teniendo en cuenta los vectores asociados a este
 
 -- Parametros:
