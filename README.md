@@ -31,7 +31,7 @@ Debemos seguir los siguientes pasos:
 2. Selección del algoritmo: KM (kMeans) y CA (clustering aglomerativo)
     1.  Selección de distancia a utilizar DE (Euclídea), DM (Manhattan), DH (Hamming)
     2.  Si la lección es KM: solicitará el número de centros y información que desea obtener (centros y/o clusters). Si el dataset es 2-dimensional podrá solicitar la representación gráfica de los resultados (recuerde hacer zoom para ver el gráfico).
-    3.  Si la lección es KM: solicitará modelo que desea utilizar LE (lista evolución) o A (árbol). En el primer caso le mostrará los resultados de forma directa. En el segundo caso le solicitará una forma de visualización del árbol. La más gráfica es el árbol de ids (AI).  
+    3.  Si la lección es CA: solicitará modelo que desea utilizar LE (lista evolución) o A (árbol). En el primer caso le mostrará los resultados de forma directa. En el segundo caso le solicitará una forma de visualización del árbol. La más gráfica es el árbol de ids (AI).  
 
 Ejemplos recomendados:  
 

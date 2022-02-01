@@ -59,7 +59,7 @@ kMeans k xs d = do
 -- xs :: [Vector]             Lista de vectores del dataset
 -- d :: Distancia             Funcion distancia
 -- Resultado:
--- [(vector, centro)] :: [Vector]      Lista que asocia a cada vector inicial su centro de cluster más cercano
+-- [(vector, centro)] :: IO [(Vector, Vector)]      Lista que asocia a cada vector inicial su centro de cluster más cercano
 
 kMeansCompleto :: Int -> [Vector] -> Distancia -> IO [(Vector, Vector)]
 kMeansCompleto k xs d = do
@@ -110,15 +110,14 @@ getNewM xms (m:ms) = [calculaMediaM xms m] ++ (getNewM xms ms)
 
 -- Funcion calculaMediaM :: [(Vector, Vector)] -> Vector -> Vector
 -- Recibe por parametros una lista de tuplas que asocia a cada vector
--- del dataset un centro y una lista con los centros actuales 
--- y retorna dicho centro actualizado
+-- del dataset un centro y un centros y retorna dicho centro actualizado
 -- El objetivo es calcular un nuevo centro teniendo en cuenta los vectores asociados a este
 
 -- Parametros:
 -- xms :: [(Vector, Vector)]   Lista de tuplas que asocia a cada vector del dataset su centro mas cercano
 -- m :: Vector                 Uno de los centros actuales
 -- Resultado:
--- centros :: Vector           Centro actualizada
+-- centros :: Vector           Centro actualizado
 
 -- Funciones relacionadas:
 -- calculaMediaMAux :: [(Vector, Vector)] -> Vector -> Int -> [Double] -> Vector   -- Funcion que itera sobre los puntos asociados a m
@@ -136,16 +135,15 @@ calculaMediaMAux (xm:xms) m cont acc = if (snd xm) == m then calculaMediaMAux xm
 -- Funcion asocXM :: [Vector] -> [Vector] -> Distancia -> [(Vector,  Vector)]
 -- Recibe por parametros una lista de vectores (correspondiente al dataset), 
 -- una lista de vectores (correspondiente a los centros actuales) 
--- y una funcion distancia y retorna una lista de vectores (centros actuales)
--- El objetivo es ir iterando esta funcion hasta que los centros actuales
--- coincidan con los de la última iteracion
+-- y una funcion distancia y retorna una lista de asociaciones de los vectores
+-- a sus centros actuales
 
 -- Parametros:
 -- xs :: [Vector]             Lista de vectores del dataset
 -- m :: [Vector]              Lista de centros de la ultima iteracion
 -- d :: Distancia             Funcion distancia
 -- Resultado:
--- centros :: Vector           Centro actualizada
+-- centros :: [(Vector,  Vector)]   Lista de tuplas vector-centro mas cercano
 
 -- Funciones relacionadas:
 -- asocXMAux :: [Vector] -> [Vector] -> Distancia -> [(Vector, Vector)] -> [(Vector, Vector)]   -- Funcion que itera sobre los puntos del dataset y 
